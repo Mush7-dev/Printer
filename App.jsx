@@ -12,7 +12,6 @@ import {
 import BleManager from 'react-native-ble-manager';
 import BrotherPrinterService from './src/services/BrotherPrinterService';
 import { Buffer } from 'buffer';
-import { PrinterSvg } from './assets/Svg';
 import { Button } from './src/components/Button';
 import { Input } from './src/components/Input';
 
