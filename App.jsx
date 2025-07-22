@@ -15,12 +15,7 @@ import {
 import BleManager from 'react-native-ble-manager';
 import BrotherPrinterService from './src/services/BrotherPrinterService';
 import { Buffer } from 'buffer';
-
-interface PrinterDevice {
-  id: string;
-  name: string;
-  rssi: number;
-}
+import { PrinterSvg } from './assets/Svg';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -29,20 +24,15 @@ function App() {
   const [isPrinting, setIsPrinting] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
-  const [inputText, setInputText] = useState('Hello World');
+  const [inputText, setInputText] = useState('FNET');
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [serviceUUID, setServiceUUID] = useState<string | null>(null);
-  const [characteristicUUID, setCharacteristicUUID] = useState<string | null>(
-    null,
-  );
+  const [serviceUUID, setServiceUUID] = useState(null);
+  const [characteristicUUID, setCharacteristicUUID] = useState(null);
   const MAC_ADDRESS = '66:22:32:D6:D1:FB';
 
-  const [connectedPrinter, setConnectedPrinter] =
-    useState<PrinterDevice | null>(null);
-  const [availablePrinters, setAvailablePrinters] = useState<PrinterDevice[]>(
-    [],
-  );
+  const [connectedPrinter, setConnectedPrinter] = useState(null);
+  const [availablePrinters, setAvailablePrinters] = useState([]);
 
   const printerService = BrotherPrinterService.getInstance();
 
@@ -51,7 +41,7 @@ function App() {
     return () => {
       printerService.disconnectPrinter();
     };
-  }, []);
+  }, [printerService]);
 
   const connectPrinter = async () => {
     try {
@@ -92,7 +82,7 @@ function App() {
     }
 
     try {
-      const buffer = Buffer.from(inputText + '\n\n', 'utf-8');
+      const buffer = Buffer.from(inputText + '\n\n\n\n', 'utf-8');
       await BleManager.writeWithoutResponse(
         MAC_ADDRESS,
         serviceUUID,
@@ -106,13 +96,13 @@ function App() {
     }
   };
 
-  const connectToPrinter = async (printer: PrinterDevice) => {
+  const connectToPrinter = async printer => {
     setIsConnecting(true);
     try {
       await printerService.connectToPrinter(printer.id);
       setConnectedPrinter(printer);
       Alert.alert('Connected', `Successfully connected to ${printer.name}!`);
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert(
         'Connection Error',
         error?.message || 'Failed to connect to printer.',
@@ -120,16 +110,6 @@ function App() {
       console.error(error);
     } finally {
       setIsConnecting(false);
-    }
-  };
-
-  const disconnectPrinter = async () => {
-    try {
-      await printerService.disconnectPrinter();
-      setConnectedPrinter(null);
-      Alert.alert('Disconnected', 'Printer disconnected successfully.');
-    } catch (error: any) {
-      console.error('Disconnect error:', error);
     }
   };
 
@@ -143,35 +123,6 @@ function App() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.header}>
-          <Text style={[styles.title, isDarkMode && styles.darkText]}>
-            Bluetooth Printer
-          </Text>
-        </View>
-
-        {/* Connection Status */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Status
-          </Text>
-          <View style={[styles.statusCard, isDarkMode && styles.darkCard]}>
-            <Text style={[styles.statusText, isDarkMode && styles.darkText]}>
-              {connectedPrinter
-                ? `Connected to: ${connectedPrinter.name}`
-                : 'Not connected'}
-            </Text>
-            {connectedPrinter && (
-              <TouchableOpacity
-                style={[styles.button, styles.disconnectButton]}
-                onPress={connectPrinter}
-              >
-                <Text style={styles.buttonText}>Disconnect</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {/* Scan for Printers */}
         <View style={styles.section}>
           <TouchableOpacity
             style={[styles.button, styles.scanButton]}
@@ -181,12 +132,11 @@ function App() {
             {isScanning ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>Scan for Printers</Text>
+              <Text style={styles.buttonText}>Connect</Text>
             )}
           </TouchableOpacity>
         </View>
 
-        {/* Available Printers */}
         {availablePrinters.length > 0 && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
@@ -219,7 +169,6 @@ function App() {
           </View>
         )}
 
-        {/* Text Input for Printing */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
             Text to Print
@@ -233,21 +182,24 @@ function App() {
             multiline
             numberOfLines={4}
           />
-
-          <TouchableOpacity
-            style={[
-              styles.button,
-              styles.printButton,
-              (!connectedPrinter || isPrinting) && styles.disabledButton,
-            ]}
-            onPress={printText}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
           >
-            {isPrinting ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Print Text</Text>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                styles.printButton,
+                (!connectedPrinter || isPrinting) && styles.disabledButton,
+              ]}
+              onPress={printText}
+            >
+              <PrinterSvg />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -257,7 +209,7 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#c400be',
   },
   darkContainer: {
     backgroundColor: '#1a1a1a',
