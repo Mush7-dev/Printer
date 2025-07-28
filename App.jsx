@@ -10,7 +10,6 @@ import {
   Text,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
-import BrotherPrinterService from './src/services/BrotherPrinterService';
 import { Buffer } from 'buffer';
 import { Button } from './src/components/Button';
 import { Input } from './src/components/Input';
@@ -22,8 +21,6 @@ function App() {
   const [serviceUUID, setServiceUUID] = useState(null);
   const [characteristicUUID, setCharacteristicUUID] = useState(null);
   const MAC_ADDRESS = '66:22:32:D6:D1:FB';
-
-  const printerService = BrotherPrinterService.getInstance();
 
   const connectPrinter = async () => {
     try {
@@ -105,10 +102,8 @@ function App() {
     requestPermissions();
 
     BleManager.start({ showAlert: false });
-    return () => {
-      printerService.disconnectPrinter();
-    };
-  }, [printerService]);
+    return () => {};
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
