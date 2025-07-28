@@ -97,12 +97,34 @@ function App() {
 
     try {
       const printText = formatUserDataForPrint(userData);
-      const buffer = Buffer.from(printText + '\n\n\n\n', 'utf-8');
+      
+      // ESC/POS commands
+      const ESC = 0x1B;
+      const GS = 0x1D;
+      const commands = [];
+      
+      // Initialize printer
+      commands.push(ESC, 0x40); // ESC @ - Initialize printer
+      
+      // Enable UTF-8 encoding mode
+      commands.push(ESC, 0x74, 0x00); // ESC t 0 - Select character code table (PC437)
+      commands.push(GS, 0x28, 0x43, 0x02, 0x00, 0x30, 0x02); // GS ( C - Select UTF-8 encoding
+      
+      // Convert text to UTF-8 buffer
+      const textBuffer = Buffer.from(printText, 'utf-8');
+      
+      // Combine commands with text
+      const fullData = Buffer.concat([
+        Buffer.from(commands),
+        textBuffer,
+        Buffer.from('\n\n\n\n', 'utf-8')
+      ]);
+      
       await BleManager.writeWithoutResponse(
         MAC_ADDRESS,
         serviceUUID,
         characteristicUUID,
-        buffer.toJSON().data,
+        fullData.toJSON().data,
       );
     } catch (err) {
       console.error(err);
@@ -110,10 +132,33 @@ function App() {
     }
   };
 
+  // Armenian to Latin transliteration map
+  const armenianToLatin = {
+    'ա': 'a', 'բ': 'b', 'գ': 'g', 'դ': 'd', 'ե': 'e', 'զ': 'z',
+    'է': 'e', 'ը': 'y', 'թ': 't', 'ժ': 'zh', 'ի': 'i', 'լ': 'l',
+    'խ': 'kh', 'ծ': 'ts', 'կ': 'k', 'հ': 'h', 'ձ': 'dz', 'ղ': 'gh',
+    'ճ': 'ch', 'մ': 'm', 'յ': 'y', 'ն': 'n', 'շ': 'sh', 'ո': 'o',
+    'չ': 'ch', 'պ': 'p', 'ջ': 'j', 'ռ': 'r', 'ս': 's', 'վ': 'v',
+    'տ': 't', 'ր': 'r', 'ց': 'ts', 'ու': 'u', 'փ': 'p', 'ք': 'k',
+    'և': 'ev', 'օ': 'o', 'ֆ': 'f',
+    'Ա': 'A', 'Բ': 'B', 'Գ': 'G', 'Դ': 'D', 'Ե': 'E', 'Զ': 'Z',
+    'Է': 'E', 'Ը': 'Y', 'Թ': 'T', 'Ժ': 'Zh', 'Ի': 'I', 'Լ': 'L',
+    'Խ': 'Kh', 'Ծ': 'Ts', 'Կ': 'K', 'Հ': 'H', 'Ձ': 'Dz', 'Ղ': 'Gh',
+    'Ճ': 'Ch', 'Մ': 'M', 'Յ': 'Y', 'Ն': 'N', 'Շ': 'Sh', 'Ո': 'O',
+    'Չ': 'Ch', 'Պ': 'P', 'Ջ': 'J', 'Ռ': 'R', 'Ս': 'S', 'Վ': 'V',
+    'Տ': 'T', 'Ր': 'R', 'Ց': 'Ts', 'Ու': 'U', 'Փ': 'P', 'Ք': 'K',
+    'Օ': 'O', 'Ֆ': 'F'
+  };
+
+  const transliterateArmenian = (text) => {
+    return text.split('').map(char => armenianToLatin[char] || char).join('');
+  };
+
   const formatUserDataForPrint = data => {
     let printText = 'USER INFORMATION\n';
     printText += '==================\n';
     printText += `Mobile: ${mobileNumber}\n`;
+    printText += '\n';
 
     Object.entries(data).forEach(([key, value]) => {
       if (typeof value === 'object') {
@@ -123,7 +168,8 @@ function App() {
       }
     });
 
-    return printText;
+    // Transliterate Armenian characters to Latin for printing
+    return transliterateArmenian(printText);
   };
   const requestPermissions = async () => {
     if (Platform.OS === 'android') {
