@@ -1,10 +1,11 @@
 import { StyleSheet, TextInput } from 'react-native';
 
-export const Input = ({ value, onChange }) => {
+export const Input = ({ value, onChange, type }) => {
   return (
     <TextInput
       style={styles.textInput}
       placeholder="Enter text to print..."
+      keyboardType={type}
       placeholderTextColor={'#999'}
       value={value}
       onChangeText={onChange}
