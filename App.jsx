@@ -11,14 +11,17 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
 import { Buffer } from 'buffer';
 import { Button } from './src/components/Button';
 import { Input } from './src/components/Input';
+import { RefreshSvg } from './assets/Svg';
 
 function App() {
   const [mobileNumber, setMobileNumber] = useState('');
+  const [id, setId] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -66,7 +69,7 @@ function App() {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://dapi.intbilling.org/api/users?mNumber=${mobileNumber}&token=${API_TOKEN}`,
+        `https://dapi.intbilling.org/api/users?mNumber=${mobileNumber}&customerId=${id}&token=${API_TOKEN}`,
       );
       const data = await response.json();
 
@@ -97,29 +100,24 @@ function App() {
 
     try {
       const printText = formatUserDataForPrint(userData);
-      
-      // ESC/POS commands
-      const ESC = 0x1B;
-      const GS = 0x1D;
+
+      const ESC = 0x1b;
+      const GS = 0x1d;
       const commands = [];
-      
-      // Initialize printer
-      commands.push(ESC, 0x40); // ESC @ - Initialize printer
-      
-      // Enable UTF-8 encoding mode
-      commands.push(ESC, 0x74, 0x00); // ESC t 0 - Select character code table (PC437)
-      commands.push(GS, 0x28, 0x43, 0x02, 0x00, 0x30, 0x02); // GS ( C - Select UTF-8 encoding
-      
-      // Convert text to UTF-8 buffer
+
+      commands.push(ESC, 0x40);
+
+      commands.push(ESC, 0x74, 0x00);
+      commands.push(GS, 0x28, 0x43, 0x02, 0x00, 0x30, 0x02);
+
       const textBuffer = Buffer.from(printText, 'utf-8');
-      
-      // Combine commands with text
+
       const fullData = Buffer.concat([
         Buffer.from(commands),
         textBuffer,
-        Buffer.from('\n\n\n\n', 'utf-8')
+        Buffer.from('\n\n\n\n', 'utf-8'),
       ]);
-      
+
       await BleManager.writeWithoutResponse(
         MAC_ADDRESS,
         serviceUUID,
@@ -134,24 +132,90 @@ function App() {
 
   // Armenian to Latin transliteration map
   const armenianToLatin = {
-    'ա': 'a', 'բ': 'b', 'գ': 'g', 'դ': 'd', 'ե': 'e', 'զ': 'z',
-    'է': 'e', 'ը': 'y', 'թ': 't', 'ժ': 'zh', 'ի': 'i', 'լ': 'l',
-    'խ': 'kh', 'ծ': 'ts', 'կ': 'k', 'հ': 'h', 'ձ': 'dz', 'ղ': 'gh',
-    'ճ': 'ch', 'մ': 'm', 'յ': 'y', 'ն': 'n', 'շ': 'sh', 'ո': 'o',
-    'չ': 'ch', 'պ': 'p', 'ջ': 'j', 'ռ': 'r', 'ս': 's', 'վ': 'v',
-    'տ': 't', 'ր': 'r', 'ց': 'ts', 'ու': 'u', 'փ': 'p', 'ք': 'k',
-    'և': 'ev', 'օ': 'o', 'ֆ': 'f',
-    'Ա': 'A', 'Բ': 'B', 'Գ': 'G', 'Դ': 'D', 'Ե': 'E', 'Զ': 'Z',
-    'Է': 'E', 'Ը': 'Y', 'Թ': 'T', 'Ժ': 'Zh', 'Ի': 'I', 'Լ': 'L',
-    'Խ': 'Kh', 'Ծ': 'Ts', 'Կ': 'K', 'Հ': 'H', 'Ձ': 'Dz', 'Ղ': 'Gh',
-    'Ճ': 'Ch', 'Մ': 'M', 'Յ': 'Y', 'Ն': 'N', 'Շ': 'Sh', 'Ո': 'O',
-    'Չ': 'Ch', 'Պ': 'P', 'Ջ': 'J', 'Ռ': 'R', 'Ս': 'S', 'Վ': 'V',
-    'Տ': 'T', 'Ր': 'R', 'Ց': 'Ts', 'Ու': 'U', 'Փ': 'P', 'Ք': 'K',
-    'Օ': 'O', 'Ֆ': 'F'
+    ա: 'a',
+    բ: 'b',
+    գ: 'g',
+    դ: 'd',
+    ե: 'e',
+    զ: 'z',
+    է: 'e',
+    ը: 'y',
+    թ: 't',
+    ժ: 'zh',
+    ի: 'i',
+    լ: 'l',
+    խ: 'kh',
+    ծ: 'ts',
+    կ: 'k',
+    հ: 'h',
+    ձ: 'dz',
+    ղ: 'gh',
+    ճ: 'ch',
+    մ: 'm',
+    յ: 'y',
+    ն: 'n',
+    շ: 'sh',
+    ո: 'o',
+    չ: 'ch',
+    պ: 'p',
+    ջ: 'j',
+    ռ: 'r',
+    ս: 's',
+    վ: 'v',
+    տ: 't',
+    ր: 'r',
+    ց: 'ts',
+    ու: 'u',
+    փ: 'p',
+    ք: 'k',
+    և: 'ev',
+    օ: 'o',
+    ֆ: 'f',
+    Ա: 'A',
+    Բ: 'B',
+    Գ: 'G',
+    Դ: 'D',
+    Ե: 'E',
+    Զ: 'Z',
+    Է: 'E',
+    Ը: 'Y',
+    Թ: 'T',
+    Ժ: 'Zh',
+    Ի: 'I',
+    Լ: 'L',
+    Խ: 'Kh',
+    Ծ: 'Ts',
+    Կ: 'K',
+    Հ: 'H',
+    Ձ: 'Dz',
+    Ղ: 'Gh',
+    Ճ: 'Ch',
+    Մ: 'M',
+    Յ: 'Y',
+    Ն: 'N',
+    Շ: 'Sh',
+    Ո: 'O',
+    Չ: 'Ch',
+    Պ: 'P',
+    Ջ: 'J',
+    Ռ: 'R',
+    Ս: 'S',
+    Վ: 'V',
+    Տ: 'T',
+    Ր: 'R',
+    Ց: 'Ts',
+    Ու: 'U',
+    Փ: 'P',
+    Ք: 'K',
+    Օ: 'O',
+    Ֆ: 'F',
   };
 
-  const transliterateArmenian = (text) => {
-    return text.split('').map(char => armenianToLatin[char] || char).join('');
+  const transliterateArmenian = text => {
+    return text
+      .split('')
+      .map(char => armenianToLatin[char] || char)
+      .join('');
   };
 
   const formatUserDataForPrint = data => {
@@ -168,7 +232,6 @@ function App() {
       }
     });
 
-    // Transliterate Armenian characters to Latin for printing
     return transliterateArmenian(printText);
   };
   const requestPermissions = async () => {
@@ -180,7 +243,6 @@ function App() {
       ])
         .then(result => {
           console.log('Permissions result:', result);
-          // You can check each permission result here
           if (
             result['android.permission.BLUETOOTH_CONNECT'] ===
               PermissionsAndroid.RESULTS.GRANTED &&
@@ -202,9 +264,7 @@ function App() {
 
   useEffect(() => {
     requestPermissions();
-
     BleManager.start({ showAlert: false });
-    return () => {};
   }, []);
 
   return (
@@ -214,23 +274,46 @@ function App() {
         translucent
         barStyle="light-content"
       />
+      <View style={styles.isConnected}>
+        <TouchableOpacity onPress={connectPrinter}>
+          <RefreshSvg />
+        </TouchableOpacity>
+        {!loading ? (
+          <View
+            style={[
+              connected ? styles.connected : styles.disconnect,
+              styles.circle,
+            ]}
+          />
+        ) : (
+          <ActivityIndicator />
+        )}
+      </View>
       <View style={styles.box}>
         <View>
           <Text style={styles.title}>Fnet</Text>
           <Text style={styles.description}>Telecom</Text>
         </View>
-        <Input
-          value={mobileNumber}
-          type="numeric"
-          onChange={setMobileNumber}
-          placeholder="Enter mobile number"
-        />
+        <View style={styles.dataBox}>
+          <Input
+            value={mobileNumber}
+            type="numeric"
+            onChange={setMobileNumber}
+            placeholder="Enter mobile number"
+          />
+          <Input
+            value={id}
+            type="numeric"
+            onChange={setId}
+            placeholder="Enter user id"
+          />
+        </View>
       </View>
       <View style={styles.buttonWrapper}>
         <Button
-          text={loading ? 'Loading...' : 'Fetch Data'}
+          text={'Fetch Data'}
           onPress={fetchUserData}
-          disabled={loading}
+          disabled={loading || !connected}
         />
       </View>
 
@@ -362,6 +445,27 @@ const styles = StyleSheet.create({
   },
   modalButtonWrapper: {
     marginTop: 10,
+  },
+  isConnected: {
+    position: 'absolute',
+    top: 70,
+    right: 20,
+    gap: 10,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  circle: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+  },
+  connected: {
+    backgroundColor: '#47ff82',
+  },
+  disconnect: {
+    backgroundColor: '#ff0512',
   },
 });
 
