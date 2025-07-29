@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,15 +12,18 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
 import { Buffer } from 'buffer';
+import ViewShot, { captureRef } from 'react-native-view-shot';
+import RNFS from 'react-native-fs';
 import { Button } from './src/components/Button';
 import { Input } from './src/components/Input';
 import { RefreshSvg } from './assets/Svg';
 
 function App() {
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('091551044');
   const [id, setId] = useState('');
   const [engineerName, setEngineerName] = useState('');
   const [userData, setUserData] = useState(null);
@@ -30,6 +33,9 @@ function App() {
   const [connected, setConnected] = useState(false);
   const [serviceUUID, setServiceUUID] = useState(null);
   const [characteristicUUID, setCharacteristicUUID] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const dataViewRef = useRef(null);
   const MAC_ADDRESS = '66:22:32:D6:D1:FB';
   const API_TOKEN =
     '9F7C1B92D8A44F4BB9E6BDE21A7F68A1C3D4EAB8F9F60D3A82B4C78E7F23C9AB';
@@ -76,10 +82,14 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
-        // setMobileNumber('');
         setId('');
         setUserData(data);
         setModalVisible(true);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        await capturePreviewImage();
+        await convertDataToImageAndPrint(data);
       } else {
         Alert.alert('Error', 'Failed to fetch user data');
       }
@@ -88,6 +98,79 @@ function App() {
       Alert.alert('Error', 'Network error occurred');
     } finally {
       setDataLoading(false);
+    }
+  };
+
+  const capturePreviewImage = async () => {
+    try {
+      if (!dataViewRef.current) {
+        console.log('Data view ref not ready');
+        return;
+      }
+
+      const imageUri = await captureRef(dataViewRef.current, {
+        format: 'png',
+        quality: 1,
+        result: 'tmpfile',
+        width: 384,
+        height: undefined,
+      });
+
+      console.log('Image captured:', imageUri);
+      setPreviewImage(imageUri);
+      setShowPreview(true);
+
+      const fileName = `armenian_print_preview_${Date.now()}.png`;
+      const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+      await RNFS.copyFile(imageUri, destPath);
+      console.log('Armenian preview saved to:', destPath);
+    } catch (error) {
+      console.error('Error capturing preview image:', error);
+    }
+  };
+
+  const convertDataToImageAndPrint = async data => {
+    if (!connected || !serviceUUID || !characteristicUUID) {
+      Alert.alert('Printer not ready or not connected');
+      return;
+    }
+
+    try {
+      const printText = formatUserDataForPrint(data);
+
+      const ESC = 0x1b;
+      const GS = 0x1d;
+      const commands = [];
+
+      commands.push(ESC, 0x40);
+      commands.push(ESC, 0x61, 0x01);
+      commands.push(ESC, 0x21, 0x10);
+      commands.push(GS, 0x21, 0x11);
+
+      const textBuffer = Buffer.from(printText, 'utf-8');
+      const fullData = Buffer.concat([
+        Buffer.from(commands),
+        textBuffer,
+        Buffer.from('\n\n\n\n', 'utf-8'),
+      ]);
+
+      const chunkSize = 20;
+      for (let i = 0; i < fullData.length; i += chunkSize) {
+        const chunk = fullData.slice(i, i + chunkSize);
+        await BleManager.writeWithoutResponse(
+          MAC_ADDRESS,
+          serviceUUID,
+          characteristicUUID,
+          chunk.toJSON().data,
+        );
+        console.log(chunk.toJSON().data);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      Alert.alert('Success', 'Data printed successfully');
+    } catch (error) {
+      console.error('Error printing data:', error);
+      Alert.alert('Error', 'Failed to print data');
     }
   };
 
@@ -230,7 +313,7 @@ function App() {
   };
 
   const formatUserDataForPrint = data => {
-    let printText = 'USER INFORMATION\n';
+    let printText = 'ֆտսաֆ INFORMATION\n';
     printText += '==================\n';
     printText += `Mobile: ${mobileNumber}\n`;
     if (engineerName) {
@@ -253,7 +336,7 @@ function App() {
     printText += '\n';
     printText += 'Price: _____________________\n';
 
-    return transliterateArmenian(printText);
+    return printText;
   };
   const requestPermissions = async () => {
     if (Platform.OS === 'android') {
@@ -341,7 +424,6 @@ function App() {
           text={'Fetch Data'}
           onPress={fetchUserData}
           loading={dataLoading}
-          disabled={loading || !connected}
         />
       </View>
 
@@ -363,18 +445,37 @@ function App() {
             <Text style={styles.modalTitle}>User Data</Text>
 
             <ScrollView style={styles.dataScrollView}>
-              <View style={styles.dataBox}>
-                <Text style={styles.dataText}>Mobile: {mobileNumber}</Text>
+              <ViewShot
+                ref={dataViewRef}
+                style={[styles.dataBox, styles.printableArea]}
+              >
+                <Text style={styles.printableText}>ֆտսաֆ INFORMATION</Text>
+                <Text style={styles.printableText}>==================</Text>
+                <Text style={styles.printableText}>Mobile: {mobileNumber}</Text>
+                {engineerName && (
+                  <Text style={styles.printableText}>
+                    Engineer: {engineerName}
+                  </Text>
+                )}
                 {userData &&
                   Object.entries(userData).map(([key, value]) => (
-                    <Text key={key} style={styles.dataText}>
+                    <Text key={key} style={styles.printableText}>
                       {key}:{' '}
                       {typeof value === 'object'
                         ? JSON.stringify(value)
                         : value}
                     </Text>
                   ))}
-              </View>
+                <Text style={styles.printableText}> </Text>
+                <Text style={styles.printableText}>Notes:</Text>
+                <Text style={styles.printableText}>
+                  Date: ______________________
+                </Text>
+                <Text style={styles.printableText}> </Text>
+                <Text style={styles.printableText}>
+                  Price: _____________________
+                </Text>
+              </ViewShot>
             </ScrollView>
 
             <View style={styles.modalButtonWrapper}>
@@ -384,6 +485,46 @@ function App() {
                   printUserData();
                   setModalVisible(false);
                 }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showPreview}
+        onRequestClose={() => setShowPreview(false)}
+      >
+        <View style={styles.previewModalOverlay}>
+          <View style={styles.previewModalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowPreview(false)}
+            >
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.previewTitle}>Armenian Print Preview</Text>
+            {previewImage && (
+              <View style={styles.previewScrollView}>
+                <Image
+                  source={{ uri: `file://${previewImage}` }}
+                  style={styles.previewImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.previewInfo}>
+                  This shows exactly what will be printed in Armenian on thermal
+                  paper (384px width)
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.previewButtonWrapper}>
+              <Button
+                text="Close Preview"
+                onPress={() => setShowPreview(false)}
               />
             </View>
           </View>
@@ -472,6 +613,59 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   modalButtonWrapper: {
+    marginTop: 10,
+  },
+  printableArea: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 8,
+    margin: 5,
+  },
+  printableText: {
+    color: '#000000',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  previewModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewModalContent: {
+    backgroundColor: '#344955',
+    borderRadius: 20,
+    padding: 20,
+    width: '95%',
+    maxHeight: '90%',
+    borderWidth: 2,
+    borderColor: '#F9AA33',
+  },
+  previewTitle: {
+    color: '#F9AA33',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  previewScrollView: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  previewImage: {
+    width: '100%',
+    height: 400,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  previewInfo: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  previewButtonWrapper: {
     marginTop: 10,
   },
   isConnected: {

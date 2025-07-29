@@ -12,11 +12,21 @@
   "dependencies": {
     "@react-native/new-app-screen": "0.80.1",
     "buffer": "^6.0.3",
+    "escpos": "^3.0.0-alpha.6",
     "iconv-lite": "^0.6.3",
     "react": "19.1.0",
     "react-native": "0.80.1",
     "react-native-ble-manager": "^12.1.5",
-    "react-native-svg": "^15.12.0"
+    "react-native-fs": "^2.20.0",
+    "react-native-html-to-pdf": "^0.12.0",
+    "react-native-image-picker": "^8.2.1",
+    "react-native-image-resizer": "^1.4.5",
+    "react-native-pdf": "^6.7.7",
+    "react-native-pdf-to-image": "^3.3.0",
+    "react-native-svg": "^15.12.0",
+    "react-native-thermal-receipt-printer": "^1.2.0-rc.2",
+    "react-native-view-shot": "^4.0.3",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
