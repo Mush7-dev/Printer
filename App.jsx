@@ -22,6 +22,7 @@ import { RefreshSvg } from './assets/Svg';
 function App() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [id, setId] = useState('');
+  const [engineerName, setEngineerName] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -74,6 +75,8 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
+        setMobileNumber('');
+        setId('');
         setUserData(data);
         setModalVisible(true);
       } else {
@@ -222,6 +225,9 @@ function App() {
     let printText = 'USER INFORMATION\n';
     printText += '==================\n';
     printText += `Mobile: ${mobileNumber}\n`;
+    if (engineerName) {
+      printText += `Engineer: ${engineerName}\n`;
+    }
     printText += '\n';
 
     Object.entries(data).forEach(([key, value]) => {
@@ -231,6 +237,12 @@ function App() {
         printText += `${key}: ${value}\n`;
       }
     });
+
+    printText += '\n';
+    printText += 'Notes:\n';
+    printText += '______________________________\n';
+    printText += '\n';
+    printText += '______________________________\n';
 
     return transliterateArmenian(printText);
   };
@@ -306,6 +318,12 @@ function App() {
             type="numeric"
             onChange={setId}
             placeholder="Enter user id"
+          />
+          <Input
+            value={engineerName}
+            type="default"
+            onChange={setEngineerName}
+            placeholder="Enter engineer name"
           />
         </View>
       </View>
