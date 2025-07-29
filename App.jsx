@@ -25,6 +25,7 @@ function App() {
   const [engineerName, setEngineerName] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [connected, setConnected] = useState(false);
   const [serviceUUID, setServiceUUID] = useState(null);
@@ -68,14 +69,14 @@ function App() {
     }
 
     try {
-      setLoading(true);
+      setDataLoading(true);
       const response = await fetch(
         `https://dapi.intbilling.org/api/users?mNumber=${mobileNumber}&customerId=${id}&token=${API_TOKEN}`,
       );
       const data = await response.json();
 
       if (response.ok) {
-        setMobileNumber('');
+        // setMobileNumber('');
         setId('');
         setUserData(data);
         setModalVisible(true);
@@ -86,7 +87,7 @@ function App() {
       console.error(err);
       Alert.alert('Error', 'Network error occurred');
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
   };
 
@@ -221,6 +222,13 @@ function App() {
       .join('');
   };
 
+  const camelCaseToReadable = key => {
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
+  };
+
   const formatUserDataForPrint = data => {
     let printText = 'USER INFORMATION\n';
     printText += '==================\n';
@@ -231,18 +239,19 @@ function App() {
     printText += '\n';
 
     Object.entries(data).forEach(([key, value]) => {
+      const readableKey = camelCaseToReadable(key);
       if (typeof value === 'object') {
-        printText += `${key}: ${JSON.stringify(value)}\n`;
+        printText += `${readableKey}: ${JSON.stringify(value)}\n`;
       } else {
-        printText += `${key}: ${value}\n`;
+        printText += `${readableKey}: ${value}\n`;
       }
     });
 
     printText += '\n';
     printText += 'Notes:\n';
-    printText += '______________________________\n';
+    printText += 'Date: ______________________\n';
     printText += '\n';
-    printText += '______________________________\n';
+    printText += 'Price: _____________________\n';
 
     return transliterateArmenian(printText);
   };
@@ -331,6 +340,7 @@ function App() {
         <Button
           text={'Fetch Data'}
           onPress={fetchUserData}
+          loading={dataLoading}
           disabled={loading || !connected}
         />
       </View>
