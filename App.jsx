@@ -68,6 +68,54 @@ function App() {
     }
   };
 
+  const printImageFromServer = async () => {
+    console.log('=== Print Image from Server ===');
+    if (!connected || !serviceUUID || !characteristicUUID) {
+      Alert.alert('Printer not ready or not connected');
+      return;
+    }
+
+    try {
+      setDataLoading(true);
+
+      // Send request to your server to convert aa.png to ESC/POS
+      console.log('Requesting ESC/POS conversion from your server...');
+      const response = await fetch('http://10.100.8.30:3001/convert-aa-png');
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      // Get the ESC/POS data as binary
+      const escposData = await response.arrayBuffer();
+      const escposBuffer = new Uint8Array(escposData);
+
+      console.log(
+        'Received ESC/POS data from your server, size:',
+        escposBuffer.length,
+        'bytes',
+      );
+      console.log('First 10 bytes:', Array.from(escposBuffer.slice(0, 10)));
+
+      // Send to printer in one write
+      console.log('Sending to printer...');
+      await BleManager.writeWithoutResponse(
+        MAC_ADDRESS,
+        serviceUUID,
+        characteristicUUID,
+        Array.from(escposBuffer),
+      );
+
+      console.log('Print job sent successfully');
+      Alert.alert('Success', 'aa.png image printed successfully');
+    } catch (error) {
+      console.error('Print error:', error);
+      Alert.alert('Error', `Failed to print: ${error.message}`);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
   const fetchUserData = async () => {
     if (!mobileNumber) {
       Alert.alert('Error', 'Please enter mobile number');
@@ -88,8 +136,11 @@ function App() {
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        await capturePreviewImage();
-        await convertDataToImageAndPrint(data);
+        const escposBuffer = await capturePreviewImage();
+        if (escposBuffer) {
+          await printImageData(escposBuffer);
+        }
+        // await convertDataToImageAndPrint(data);
       } else {
         Alert.alert('Error', 'Failed to fetch user data');
       }
@@ -111,7 +162,7 @@ function App() {
       const imageUri = await captureRef(dataViewRef.current, {
         format: 'png',
         quality: 1,
-        result: 'tmpfile',
+        result: 'base64',
         width: 384,
         height: undefined,
       });
@@ -124,8 +175,73 @@ function App() {
       const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
       await RNFS.copyFile(imageUri, destPath);
       console.log('Armenian preview saved to:', destPath);
+
+      // Send base64 image to server and get ESC/POS data
+      const base64Image = `data:image/png;base64,${imageUri}`;
+
+      const response = await fetch(
+        'http://10.100.8.30:3001/convert-to-escpos',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            base64Image: 'gf',
+            width: 384,
+          }),
+        },
+      );
+
+      const result = 'fd';
+      console.log(result);
+      if (result.success) {
+        console.log('ESC/POS conversion successful:', result);
+        console.log('ESC/POS data:', result.escposData);
+        console.log('Image info:', result.imageInfo);
+
+        // You can now use result.escposData for printing
+        // The ESC/POS data is base64 encoded, decode it when sending to printer
+        // const escposBuffer = Buffer.from(result.escposData, 'base64');
+        // console.log('ESC/POS buffer ready for printing:', escposBuffer);
+
+        // return escposBuffer;
+      } else {
+        console.error('ESC/POS conversion failed:', result.error);
+      }
     } catch (error) {
-      console.error('Error capturing preview image:', error);
+      console.error(
+        'Error capturing preview image or converting to ESC/POS:',
+        error,
+      );
+    }
+  };
+
+  const printImageData = async escposBuffer => {
+    if (!connected || !serviceUUID || !characteristicUUID) {
+      Alert.alert('Printer not ready or not connected');
+      return;
+    }
+
+    try {
+      console.log('Printing image data to thermal printer...');
+
+      const chunkSize = 20;
+      for (let i = 0; i < escposBuffer.length; i += chunkSize) {
+        const chunk = escposBuffer.slice(i, i + chunkSize);
+        await BleManager.writeWithoutResponse(
+          MAC_ADDRESS,
+          serviceUUID,
+          characteristicUUID,
+          Array.from(chunk),
+        );
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      console.log('Image printed successfully');
+    } catch (error) {
+      console.error('Error printing image data:', error);
+      Alert.alert('Error', 'Failed to print image');
     }
   };
 
@@ -423,6 +539,11 @@ function App() {
         <Button
           text={'Fetch Data'}
           onPress={fetchUserData}
+          loading={dataLoading}
+        />
+        <Button
+          text={'Print Image'}
+          onPress={printImageFromServer}
           loading={dataLoading}
         />
       </View>
