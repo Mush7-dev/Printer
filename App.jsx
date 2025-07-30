@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Image,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
 import { Buffer } from 'buffer';
@@ -34,7 +33,6 @@ function App() {
   const [serviceUUID, setServiceUUID] = useState(null);
   const [characteristicUUID, setCharacteristicUUID] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
   const dataViewRef = useRef(null);
   const MAC_ADDRESS = '66:22:32:D6:D1:FB';
   const API_TOKEN =
@@ -68,7 +66,7 @@ function App() {
     }
   };
 
-  const printImageFromServer = async data => {
+  const printImageFromServer = async () => {
     if (!connected || !serviceUUID || !characteristicUUID) {
       Alert.alert('Printer not ready or not connected');
       return;
@@ -76,28 +74,19 @@ function App() {
 
     try {
       setDataLoading(true);
-      const testImageBase64 = data;
-      console.log(testImageBase64, 'testImageBase64');
+      const testImageBase64 = previewImage;
       const result = await EscPosConverter.convertImageToEscPos(
         `data:image/png;base64,${testImageBase64}`,
-        384, // Full width for maximum paper usage
+        384,
       );
 
       if (!result.success) {
         throw new Error('ESC/POS conversion failed');
       }
 
-      // Decode the base64 ESC/POS data
       const escposBuffer = Buffer.from(result.escposData, 'base64');
 
-      console.log(
-        'Generated ESC/POS data locally, size:',
-        escposBuffer.length,
-        'bytes',
-      );
-
-      // Maximum speed BLE transmission
-      const chunkSize = 180; // Maximum safe chunk size for speed
+      const chunkSize = 180;
       for (let i = 0; i < escposBuffer.length; i += chunkSize) {
         const chunk = escposBuffer.slice(i, i + chunkSize);
         await BleManager.writeWithoutResponse(
@@ -106,12 +95,8 @@ function App() {
           characteristicUUID,
           Array.from(chunk),
         );
-        // No delay for maximum speed - printer buffer should handle it
-        // await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise(resolve => setTimeout(resolve, 10));
       }
-
-      console.log('Print job sent successfully');
-      Alert.alert('Success', 'Test image printed successfully');
     } catch (error) {
       console.error('Print error:', error);
       Alert.alert('Error', `Failed to print: ${error.message}`);
@@ -140,10 +125,6 @@ function App() {
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         capturePreviewImage();
-        // if (escposBuffer) {
-        //   await printImageData(escposBuffer);
-        // }
-        // await convertDataToImageAndPrint(data);
       } else {
         Alert.alert('Error', 'Failed to fetch user data');
       }
@@ -164,18 +145,14 @@ function App() {
 
       const imageUri = await captureRef(dataViewRef.current, {
         format: 'png',
-        quality: 0.5, // Lower quality for maximum speed
+        quality: 0.1,
         result: 'base64',
-        width: 384, // Full width for maximum paper usage
+        width: 384,
         height: undefined,
       });
 
       console.log('Image captured as base64');
       setPreviewImage(`data:image/png;base64,${imageUri}`);
-      setShowPreview(true);
-
-      // Send the base64 image directly to printImageFromServer
-      printImageFromServer(imageUri);
     } catch (error) {
       console.error(
         'Error capturing preview image or converting to ESC/POS:',
@@ -327,13 +304,13 @@ function App() {
             </ScrollView>
 
             <View style={styles.modalButtonWrapper}>
-              {/* <Button
+              <Button
                 text="Print Data"
                 onPress={() => {
-                  printUserData();
+                  printImageFromServer();
                   setModalVisible(false);
                 }}
-              /> */}
+              />
             </View>
           </View>
         </View>
@@ -431,7 +408,7 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: '#000000',
-    fontSize: 20, // Reduced from 18 to 14 for faster rendering and smaller image
+    fontSize: 18, // Reduced from 18 to 14 for faster rendering and smaller image
     lineHeight: 20, // Reduced from 20 to 16 for tighter spacing
   },
   previewModalOverlay: {
