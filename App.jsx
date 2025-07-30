@@ -86,7 +86,7 @@ function App() {
 
       const escposBuffer = Buffer.from(result.escposData, 'base64');
 
-      const chunkSize = 180;
+      const chunkSize = 20;
       for (let i = 0; i < escposBuffer.length; i += chunkSize) {
         const chunk = escposBuffer.slice(i, i + chunkSize);
         await BleManager.writeWithoutResponse(
@@ -95,7 +95,6 @@ function App() {
           characteristicUUID,
           Array.from(chunk),
         );
-        await new Promise(resolve => setTimeout(resolve, 10));
       }
     } catch (error) {
       console.error('Print error:', error);
