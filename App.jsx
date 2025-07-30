@@ -80,7 +80,7 @@ function App() {
       console.log(testImageBase64, 'testImageBase64');
       const result = await EscPosConverter.convertImageToEscPos(
         `data:image/png;base64,${testImageBase64}`,
-        384,
+        288, // Reduced from 384 to 288 for faster processing
       );
 
       if (!result.success) {
@@ -96,8 +96,8 @@ function App() {
         'bytes',
       );
 
-      // Send to printer in chunks
-      const chunkSize = 20;
+      // Send to printer in larger chunks for faster transmission
+      const chunkSize = 128; // Increased from 20 to 128 for faster BLE transmission
       for (let i = 0; i < escposBuffer.length; i += chunkSize) {
         const chunk = escposBuffer.slice(i, i + chunkSize);
         await BleManager.writeWithoutResponse(
@@ -106,7 +106,7 @@ function App() {
           characteristicUUID,
           Array.from(chunk),
         );
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 10)); // Reduced delay from 50ms to 10ms
       }
 
       console.log('Print job sent successfully');
@@ -163,9 +163,9 @@ function App() {
 
       const imageUri = await captureRef(dataViewRef.current, {
         format: 'png',
-        quality: 1,
+        quality: 0.8, // Reduced from 1 to 0.8 for faster processing
         result: 'base64',
-        width: 384,
+        width: 288, // Reduced from 384 to 288 for faster processing
         height: undefined,
       });
 
@@ -294,32 +294,39 @@ function App() {
                 ref={dataViewRef}
                 style={[styles.dataBox, styles.printableArea]}
               >
-                <Text style={styles.printableText}>ֆտսաֆ INFORMATION</Text>
+                <Text style={styles.printableText}>FNET Telecom</Text>
                 <Text style={styles.printableText}>==================</Text>
-                <Text style={styles.printableText}>Mobile: {mobileNumber}</Text>
                 {engineerName && (
                   <Text style={styles.printableText}>
-                    Engineer: {engineerName}
+                    Գանձող: {engineerName}
                   </Text>
                 )}
-                {userData &&
-                  Object.entries(userData).map(([key, value]) => (
-                    <Text key={key} style={styles.printableText}>
-                      {key}:{' '}
-                      {typeof value === 'object'
-                        ? JSON.stringify(value)
-                        : value}
+                {userData && (
+                  <View style={{ gap: 20 }}>
+                    <Text style={[styles.printableText, { lineHeight: 24 }]}>
+                      Անուն, ազգանուն: {userData.fullName}
                     </Text>
-                  ))}
+                    <Text style={styles.printableText}>
+                      հասցե: {userData.address}
+                    </Text>
+                    <Text style={styles.printableText}>
+                      Վճարման օր: {userData.expectedPaymentDay}
+                    </Text>
+                    <Text style={styles.printableText}>
+                      Գումար: {userData.expectedPaymentAmount}
+                    </Text>
+                    <Text style={styles.printableText}>
+                      Հեռախոսահամար: {userData.mobilePhoneNumber}
+                    </Text>
+                  </View>
+                )}
                 <Text style={styles.printableText}> </Text>
-                <Text style={styles.printableText}>Notes:</Text>
-                <Text style={styles.printableText}>
-                  Date: ______________________
-                </Text>
+                <Text style={styles.printableText}>Ամսաթիվ:</Text>
+                <Text style={styles.printableText}>______________________</Text>
                 <Text style={styles.printableText}> </Text>
-                <Text style={styles.printableText}>
-                  Price: _____________________
-                </Text>
+                <Text style={styles.printableText}>Գումար:</Text>
+                <Text style={styles.printableText}>______________________</Text>
+                <Text style={styles.printableText}> </Text>
               </ViewShot>
             </ScrollView>
 
@@ -428,8 +435,8 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: '#000000',
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 20, // Reduced from 18 to 14 for faster rendering and smaller image
+    lineHeight: 20, // Reduced from 20 to 16 for tighter spacing
   },
   previewModalOverlay: {
     flex: 1,

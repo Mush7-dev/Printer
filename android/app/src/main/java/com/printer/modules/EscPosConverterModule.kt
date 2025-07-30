@@ -70,22 +70,21 @@ class EscPosConverterModule(reactContext: ReactApplicationContext) : ReactContex
 
             val scaledBitmap = scaleBitmap(originalBitmap, width)
             
-            val grayscaleBitmap = convertToGrayscale(scaledBitmap)
-            
             // Log the actual dimensions
             android.util.Log.d("EscPosConverter", "Original bitmap: ${originalBitmap.width}x${originalBitmap.height}")
             android.util.Log.d("EscPosConverter", "Scaled bitmap: ${scaledBitmap.width}x${scaledBitmap.height}")
             android.util.Log.d("EscPosConverter", "Bytes per line: ${(scaledBitmap.width + 7) / 8}")
             
-            val escposCommands = convertBitmapToEscPos(grayscaleBitmap)
+            // Skip grayscale conversion - do direct black/white thresholding in ESC/POS conversion
+            val escposCommands = convertBitmapToEscPosDirectly(scaledBitmap)
             
             val result = WritableNativeMap().apply {
                 putBoolean("success", true)
                 putString("escposData", Base64.encodeToString(escposCommands, Base64.NO_WRAP))
                 putMap("imageInfo", WritableNativeMap().apply {
-                    putInt("width", grayscaleBitmap.width)
-                    putInt("height", grayscaleBitmap.height)
-                    putInt("bytesPerLine", (grayscaleBitmap.width + 7) / 8)
+                    putInt("width", scaledBitmap.width)
+                    putInt("height", scaledBitmap.height)
+                    putInt("bytesPerLine", (scaledBitmap.width + 7) / 8)
                 })
             }
             
@@ -100,28 +99,35 @@ class EscPosConverterModule(reactContext: ReactApplicationContext) : ReactContex
         val aspectRatio = bitmap.height.toFloat() / bitmap.width.toFloat()
         val targetHeight = (targetWidth * aspectRatio).toInt()
         
-        return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+        // Use faster filtering for speed over quality since we're doing black/white anyway
+        return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, false)
     }
 
     private fun convertToGrayscale(bitmap: Bitmap): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
-        val grayscaleBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                val pixel = bitmap.getPixel(x, y)
-                val red = Color.red(pixel)
-                val green = Color.green(pixel)
-                val blue = Color.blue(pixel)
-                
-                val gray = (0.299 * red + 0.587 * green + 0.114 * blue).toInt()
-                
-                // Convert to pure black/white (threshold at 128 like Node.js)
-                val newPixel = if (gray < 128) Color.BLACK else Color.WHITE
-                grayscaleBitmap.setPixel(x, y, newPixel)
-            }
+        // Extract all pixels at once for faster processing
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        
+        // Process pixels in bulk
+        for (i in pixels.indices) {
+            val pixel = pixels[i]
+            val red = (pixel shr 16) and 0xFF
+            val green = (pixel shr 8) and 0xFF
+            val blue = pixel and 0xFF
+            
+            // Fast grayscale calculation using bit shifts instead of floating point
+            val gray = (red * 77 + green * 150 + blue * 29) shr 8 // Equivalent to 0.299*R + 0.587*G + 0.114*B
+            
+            // Convert to pure black/white (threshold at 128)
+            pixels[i] = if (gray < 128) Color.BLACK else Color.WHITE
         }
+        
+        // Create new bitmap with processed pixels
+        val grayscaleBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        grayscaleBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
         
         return grayscaleBitmap
     }
@@ -146,8 +152,13 @@ class EscPosConverterModule(reactContext: ReactApplicationContext) : ReactContex
         // Height in dots (yL yH)
         outputStream.write(byteArrayOf((height and 0xFF).toByte(), ((height shr 8) and 0xFF).toByte()))
         
-        // Convert image data to raster format - exactly like working Node.js
+        // Extract all pixels into array for faster access (keep this optimization)
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        
+        // Convert image data to raster format - exactly like working Node.js but with pixel array optimization
         for (y in 0 until height) {
+            val rowOffset = y * width
             for (x in 0 until width step 8) {
                 var byte = 0
                 
@@ -156,10 +167,72 @@ class EscPosConverterModule(reactContext: ReactApplicationContext) : ReactContex
                     val pixelX = x + bit
                     
                     if (pixelX < width) {
-                        val pixel = bitmap.getPixel(pixelX, y)
+                        val pixelIndex = rowOffset + pixelX
+                        val pixel = pixels[pixelIndex]
                         
                         // Check if pixel is black (like Node.js: pixelValue === 0)
                         if (pixel == Color.BLACK) {
+                            byte = byte or (1 shl (7 - bit)) // MSB first
+                        }
+                    }
+                }
+                outputStream.write(byte)
+            }
+        }
+        
+        // Add paper feed
+        outputStream.write(byteArrayOf(0x0A, 0x0A, 0x0A))
+        
+        return outputStream.toByteArray()
+    }
+
+    private fun convertBitmapToEscPosDirectly(bitmap: Bitmap): ByteArray {
+        val width = bitmap.width
+        val height = bitmap.height
+        val bytesPerLine = (width + 7) / 8
+        
+        val outputStream = ByteArrayOutputStream()
+        
+        // Initialize printer - ESC @
+        outputStream.write(byteArrayOf(0x1B, 0x40))
+        
+        // Use GS v 0 raster graphics command
+        outputStream.write(byteArrayOf(0x1D, 0x76, 0x30, 0x00))
+        
+        // Width in bytes (xL xH)
+        outputStream.write(byteArrayOf((bytesPerLine and 0xFF).toByte(), ((bytesPerLine shr 8) and 0xFF).toByte()))
+        
+        // Height in dots (yL yH)
+        outputStream.write(byteArrayOf((height and 0xFF).toByte(), ((height shr 8) and 0xFF).toByte()))
+        
+        // Extract all pixels at once for fastest processing
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        
+        // Direct conversion to ESC/POS with black/white thresholding in one pass
+        for (y in 0 until height) {
+            val rowOffset = y * width
+            for (x in 0 until width step 8) {
+                var byte = 0
+                
+                // Process 8 horizontal pixels into one byte
+                for (bit in 0 until 8) {
+                    val pixelX = x + bit
+                    
+                    if (pixelX < width) {
+                        val pixelIndex = rowOffset + pixelX
+                        val pixel = pixels[pixelIndex]
+                        
+                        // Direct RGB to grayscale and threshold in one operation
+                        val red = (pixel shr 16) and 0xFF
+                        val green = (pixel shr 8) and 0xFF
+                        val blue = pixel and 0xFF
+                        
+                        // Fast grayscale using bit shifts: 0.299*R + 0.587*G + 0.114*B
+                        val gray = (red * 77 + green * 150 + blue * 29) shr 8
+                        
+                        // Black/white threshold at 128
+                        if (gray < 128) {
                             byte = byte or (1 shl (7 - bit)) // MSB first
                         }
                     }
