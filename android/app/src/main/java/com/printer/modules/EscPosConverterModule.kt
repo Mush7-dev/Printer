@@ -209,35 +209,27 @@ class EscPosConverterModule(reactContext: ReactApplicationContext) : ReactContex
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
         
-        // Direct conversion to ESC/POS with black/white thresholding in one pass
+        // Ultra-fast conversion optimized for speed
         for (y in 0 until height) {
             val rowOffset = y * width
-            for (x in 0 until width step 8) {
+            var x = 0
+            while (x < width) {
                 var byte = 0
                 
-                // Process 8 horizontal pixels into one byte
-                for (bit in 0 until 8) {
-                    val pixelX = x + bit
+                // Process 8 pixels with maximum speed optimization
+                val endX = minOf(x + 8, width)
+                for (bit in 0 until (endX - x)) {
+                    val pixelIndex = rowOffset + x + bit
+                    val pixel = pixels[pixelIndex]
                     
-                    if (pixelX < width) {
-                        val pixelIndex = rowOffset + pixelX
-                        val pixel = pixels[pixelIndex]
-                        
-                        // Direct RGB to grayscale and threshold in one operation
-                        val red = (pixel shr 16) and 0xFF
-                        val green = (pixel shr 8) and 0xFF
-                        val blue = pixel and 0xFF
-                        
-                        // Fast grayscale using bit shifts: 0.299*R + 0.587*G + 0.114*B
-                        val gray = (red * 77 + green * 150 + blue * 29) shr 8
-                        
-                        // Black/white threshold at 128
-                        if (gray < 128) {
-                            byte = byte or (1 shl (7 - bit)) // MSB first
-                        }
+                    // Ultra-fast grayscale: use green channel only (fastest approximation)
+                    // Green channel gives good grayscale approximation and is 3x faster
+                    if (((pixel shr 8) and 0xFF) < 128) {
+                        byte = byte or (1 shl (7 - bit)) // MSB first
                     }
                 }
                 outputStream.write(byte)
+                x += 8
             }
         }
         

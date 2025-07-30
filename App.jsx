@@ -80,7 +80,7 @@ function App() {
       console.log(testImageBase64, 'testImageBase64');
       const result = await EscPosConverter.convertImageToEscPos(
         `data:image/png;base64,${testImageBase64}`,
-        288, // Reduced from 384 to 288 for faster processing
+        384, // Full width for maximum paper usage
       );
 
       if (!result.success) {
@@ -96,8 +96,8 @@ function App() {
         'bytes',
       );
 
-      // Send to printer in larger chunks for faster transmission
-      const chunkSize = 128; // Increased from 20 to 128 for faster BLE transmission
+      // Maximum speed BLE transmission
+      const chunkSize = 180; // Maximum safe chunk size for speed
       for (let i = 0; i < escposBuffer.length; i += chunkSize) {
         const chunk = escposBuffer.slice(i, i + chunkSize);
         await BleManager.writeWithoutResponse(
@@ -106,7 +106,8 @@ function App() {
           characteristicUUID,
           Array.from(chunk),
         );
-        await new Promise(resolve => setTimeout(resolve, 10)); // Reduced delay from 50ms to 10ms
+        // No delay for maximum speed - printer buffer should handle it
+        // await new Promise(resolve => setTimeout(resolve, 0));
       }
 
       console.log('Print job sent successfully');
@@ -163,9 +164,9 @@ function App() {
 
       const imageUri = await captureRef(dataViewRef.current, {
         format: 'png',
-        quality: 0.8, // Reduced from 1 to 0.8 for faster processing
+        quality: 0.5, // Lower quality for maximum speed
         result: 'base64',
-        width: 288, // Reduced from 384 to 288 for faster processing
+        width: 384, // Full width for maximum paper usage
         height: undefined,
       });
 
@@ -295,12 +296,7 @@ function App() {
                 style={[styles.dataBox, styles.printableArea]}
               >
                 <Text style={styles.printableText}>FNET Telecom</Text>
-                <Text style={styles.printableText}>==================</Text>
-                {engineerName && (
-                  <Text style={styles.printableText}>
-                    Գանձող: {engineerName}
-                  </Text>
-                )}
+                <Text style={styles.printableText}>Գանձող: {engineerName}</Text>
                 {userData && (
                   <View style={{ gap: 20 }}>
                     <Text style={[styles.printableText, { lineHeight: 24 }]}>
