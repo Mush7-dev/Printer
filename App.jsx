@@ -17,10 +17,10 @@ import {
 import BleManager from 'react-native-ble-manager';
 import { Buffer } from 'buffer';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import RNFS from 'react-native-fs';
 import { Button } from './src/components/Button';
 import { Input } from './src/components/Input';
 import { RefreshSvg } from './assets/Svg';
+import EscPosConverter from './src/modules/EscPosConverter';
 
 function App() {
   const [mobileNumber, setMobileNumber] = useState('091551044');
@@ -68,8 +68,7 @@ function App() {
     }
   };
 
-  const printImageFromServer = async () => {
-    console.log('=== Print Image from Server ===');
+  const printImageFromServer = async data => {
     if (!connected || !serviceUUID || !characteristicUUID) {
       Alert.alert('Printer not ready or not connected');
       return;
@@ -77,37 +76,41 @@ function App() {
 
     try {
       setDataLoading(true);
+      const testImageBase64 = data;
+      console.log(testImageBase64, 'testImageBase64');
+      const result = await EscPosConverter.convertImageToEscPos(
+        `data:image/png;base64,${testImageBase64}`,
+        384,
+      );
 
-      // Send request to your server to convert aa.png to ESC/POS
-      console.log('Requesting ESC/POS conversion from your server...');
-      const response = await fetch('http://10.100.8.30:3001/convert-aa-png');
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+      if (!result.success) {
+        throw new Error('ESC/POS conversion failed');
       }
 
-      // Get the ESC/POS data as binary
-      const escposData = await response.arrayBuffer();
-      const escposBuffer = new Uint8Array(escposData);
+      // Decode the base64 ESC/POS data
+      const escposBuffer = Buffer.from(result.escposData, 'base64');
 
       console.log(
-        'Received ESC/POS data from your server, size:',
+        'Generated ESC/POS data locally, size:',
         escposBuffer.length,
         'bytes',
       );
-      console.log('First 10 bytes:', Array.from(escposBuffer.slice(0, 10)));
 
-      // Send to printer in one write
-      console.log('Sending to printer...');
-      await BleManager.writeWithoutResponse(
-        MAC_ADDRESS,
-        serviceUUID,
-        characteristicUUID,
-        Array.from(escposBuffer),
-      );
+      // Send to printer in chunks
+      const chunkSize = 20;
+      for (let i = 0; i < escposBuffer.length; i += chunkSize) {
+        const chunk = escposBuffer.slice(i, i + chunkSize);
+        await BleManager.writeWithoutResponse(
+          MAC_ADDRESS,
+          serviceUUID,
+          characteristicUUID,
+          Array.from(chunk),
+        );
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
 
       console.log('Print job sent successfully');
-      Alert.alert('Success', 'aa.png image printed successfully');
+      Alert.alert('Success', 'Test image printed successfully');
     } catch (error) {
       console.error('Print error:', error);
       Alert.alert('Error', `Failed to print: ${error.message}`);
@@ -135,11 +138,10 @@ function App() {
         setModalVisible(true);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const escposBuffer = await capturePreviewImage();
-        if (escposBuffer) {
-          await printImageData(escposBuffer);
-        }
+        capturePreviewImage();
+        // if (escposBuffer) {
+        //   await printImageData(escposBuffer);
+        // }
         // await convertDataToImageAndPrint(data);
       } else {
         Alert.alert('Error', 'Failed to fetch user data');
@@ -167,48 +169,12 @@ function App() {
         height: undefined,
       });
 
-      console.log('Image captured:', imageUri);
-      setPreviewImage(imageUri);
+      console.log('Image captured as base64');
+      setPreviewImage(`data:image/png;base64,${imageUri}`);
       setShowPreview(true);
 
-      const fileName = `armenian_print_preview_${Date.now()}.png`;
-      const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-      await RNFS.copyFile(imageUri, destPath);
-      console.log('Armenian preview saved to:', destPath);
-
-      // Send base64 image to server and get ESC/POS data
-      const base64Image = `data:image/png;base64,${imageUri}`;
-
-      const response = await fetch(
-        'http://10.100.8.30:3001/convert-to-escpos',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            base64Image: 'gf',
-            width: 384,
-          }),
-        },
-      );
-
-      const result = 'fd';
-      console.log(result);
-      if (result.success) {
-        console.log('ESC/POS conversion successful:', result);
-        console.log('ESC/POS data:', result.escposData);
-        console.log('Image info:', result.imageInfo);
-
-        // You can now use result.escposData for printing
-        // The ESC/POS data is base64 encoded, decode it when sending to printer
-        // const escposBuffer = Buffer.from(result.escposData, 'base64');
-        // console.log('ESC/POS buffer ready for printing:', escposBuffer);
-
-        // return escposBuffer;
-      } else {
-        console.error('ESC/POS conversion failed:', result.error);
-      }
+      // Send the base64 image directly to printImageFromServer
+      printImageFromServer(imageUri);
     } catch (error) {
       console.error(
         'Error capturing preview image or converting to ESC/POS:',
@@ -217,243 +183,6 @@ function App() {
     }
   };
 
-  const printImageData = async escposBuffer => {
-    if (!connected || !serviceUUID || !characteristicUUID) {
-      Alert.alert('Printer not ready or not connected');
-      return;
-    }
-
-    try {
-      console.log('Printing image data to thermal printer...');
-
-      const chunkSize = 20;
-      for (let i = 0; i < escposBuffer.length; i += chunkSize) {
-        const chunk = escposBuffer.slice(i, i + chunkSize);
-        await BleManager.writeWithoutResponse(
-          MAC_ADDRESS,
-          serviceUUID,
-          characteristicUUID,
-          Array.from(chunk),
-        );
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
-      console.log('Image printed successfully');
-    } catch (error) {
-      console.error('Error printing image data:', error);
-      Alert.alert('Error', 'Failed to print image');
-    }
-  };
-
-  const convertDataToImageAndPrint = async data => {
-    if (!connected || !serviceUUID || !characteristicUUID) {
-      Alert.alert('Printer not ready or not connected');
-      return;
-    }
-
-    try {
-      const printText = formatUserDataForPrint(data);
-
-      const ESC = 0x1b;
-      const GS = 0x1d;
-      const commands = [];
-
-      commands.push(ESC, 0x40);
-      commands.push(ESC, 0x61, 0x01);
-      commands.push(ESC, 0x21, 0x10);
-      commands.push(GS, 0x21, 0x11);
-
-      const textBuffer = Buffer.from(printText, 'utf-8');
-      const fullData = Buffer.concat([
-        Buffer.from(commands),
-        textBuffer,
-        Buffer.from('\n\n\n\n', 'utf-8'),
-      ]);
-
-      const chunkSize = 20;
-      for (let i = 0; i < fullData.length; i += chunkSize) {
-        const chunk = fullData.slice(i, i + chunkSize);
-        await BleManager.writeWithoutResponse(
-          MAC_ADDRESS,
-          serviceUUID,
-          characteristicUUID,
-          chunk.toJSON().data,
-        );
-        console.log(chunk.toJSON().data);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
-      Alert.alert('Success', 'Data printed successfully');
-    } catch (error) {
-      console.error('Error printing data:', error);
-      Alert.alert('Error', 'Failed to print data');
-    }
-  };
-
-  const printUserData = async () => {
-    if (!connected || !serviceUUID || !characteristicUUID) {
-      Alert.alert('Printer not ready or not connected');
-      return;
-    }
-
-    if (!userData) {
-      Alert.alert('Error', 'No user data to print');
-      return;
-    }
-
-    try {
-      const printText = formatUserDataForPrint(userData);
-
-      const ESC = 0x1b;
-      const GS = 0x1d;
-      const commands = [];
-
-      commands.push(ESC, 0x40);
-
-      commands.push(ESC, 0x74, 0x00);
-      commands.push(GS, 0x28, 0x43, 0x02, 0x00, 0x30, 0x02);
-
-      const textBuffer = Buffer.from(printText, 'utf-8');
-
-      const fullData = Buffer.concat([
-        Buffer.from(commands),
-        textBuffer,
-        Buffer.from('\n\n\n\n', 'utf-8'),
-      ]);
-
-      await BleManager.writeWithoutResponse(
-        MAC_ADDRESS,
-        serviceUUID,
-        characteristicUUID,
-        fullData.toJSON().data,
-      );
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Print Failed', err.message);
-    }
-  };
-
-  // Armenian to Latin transliteration map
-  const armenianToLatin = {
-    ա: 'a',
-    բ: 'b',
-    գ: 'g',
-    դ: 'd',
-    ե: 'e',
-    զ: 'z',
-    է: 'e',
-    ը: 'y',
-    թ: 't',
-    ժ: 'zh',
-    ի: 'i',
-    լ: 'l',
-    խ: 'kh',
-    ծ: 'ts',
-    կ: 'k',
-    հ: 'h',
-    ձ: 'dz',
-    ղ: 'gh',
-    ճ: 'ch',
-    մ: 'm',
-    յ: 'y',
-    ն: 'n',
-    շ: 'sh',
-    ո: 'o',
-    չ: 'ch',
-    պ: 'p',
-    ջ: 'j',
-    ռ: 'r',
-    ս: 's',
-    վ: 'v',
-    տ: 't',
-    ր: 'r',
-    ց: 'ts',
-    ու: 'u',
-    փ: 'p',
-    ք: 'k',
-    և: 'ev',
-    օ: 'o',
-    ֆ: 'f',
-    Ա: 'A',
-    Բ: 'B',
-    Գ: 'G',
-    Դ: 'D',
-    Ե: 'E',
-    Զ: 'Z',
-    Է: 'E',
-    Ը: 'Y',
-    Թ: 'T',
-    Ժ: 'Zh',
-    Ի: 'I',
-    Լ: 'L',
-    Խ: 'Kh',
-    Ծ: 'Ts',
-    Կ: 'K',
-    Հ: 'H',
-    Ձ: 'Dz',
-    Ղ: 'Gh',
-    Ճ: 'Ch',
-    Մ: 'M',
-    Յ: 'Y',
-    Ն: 'N',
-    Շ: 'Sh',
-    Ո: 'O',
-    Չ: 'Ch',
-    Պ: 'P',
-    Ջ: 'J',
-    Ռ: 'R',
-    Ս: 'S',
-    Վ: 'V',
-    Տ: 'T',
-    Ր: 'R',
-    Ց: 'Ts',
-    Ու: 'U',
-    Փ: 'P',
-    Ք: 'K',
-    Օ: 'O',
-    Ֆ: 'F',
-  };
-
-  const transliterateArmenian = text => {
-    return text
-      .split('')
-      .map(char => armenianToLatin[char] || char)
-      .join('');
-  };
-
-  const camelCaseToReadable = key => {
-    return key
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim();
-  };
-
-  const formatUserDataForPrint = data => {
-    let printText = 'ֆտսաֆ INFORMATION\n';
-    printText += '==================\n';
-    printText += `Mobile: ${mobileNumber}\n`;
-    if (engineerName) {
-      printText += `Engineer: ${engineerName}\n`;
-    }
-    printText += '\n';
-
-    Object.entries(data).forEach(([key, value]) => {
-      const readableKey = camelCaseToReadable(key);
-      if (typeof value === 'object') {
-        printText += `${readableKey}: ${JSON.stringify(value)}\n`;
-      } else {
-        printText += `${readableKey}: ${value}\n`;
-      }
-    });
-
-    printText += '\n';
-    printText += 'Notes:\n';
-    printText += 'Date: ______________________\n';
-    printText += '\n';
-    printText += 'Price: _____________________\n';
-
-    return printText;
-  };
   const requestPermissions = async () => {
     if (Platform.OS === 'android') {
       PermissionsAndroid.requestMultiple([
@@ -541,11 +270,6 @@ function App() {
           onPress={fetchUserData}
           loading={dataLoading}
         />
-        <Button
-          text={'Print Image'}
-          onPress={printImageFromServer}
-          loading={dataLoading}
-        />
       </View>
 
       <Modal
@@ -600,53 +324,13 @@ function App() {
             </ScrollView>
 
             <View style={styles.modalButtonWrapper}>
-              <Button
+              {/* <Button
                 text="Print Data"
                 onPress={() => {
                   printUserData();
                   setModalVisible(false);
                 }}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showPreview}
-        onRequestClose={() => setShowPreview(false)}
-      >
-        <View style={styles.previewModalOverlay}>
-          <View style={styles.previewModalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowPreview(false)}
-            >
-              <Text style={styles.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.previewTitle}>Armenian Print Preview</Text>
-            {previewImage && (
-              <View style={styles.previewScrollView}>
-                <Image
-                  source={{ uri: `file://${previewImage}` }}
-                  style={styles.previewImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.previewInfo}>
-                  This shows exactly what will be printed in Armenian on thermal
-                  paper (384px width)
-                </Text>
-              </View>
-            )}
-
-            <View style={styles.previewButtonWrapper}>
-              <Button
-                text="Close Preview"
-                onPress={() => setShowPreview(false)}
-              />
+              /> */}
             </View>
           </View>
         </View>

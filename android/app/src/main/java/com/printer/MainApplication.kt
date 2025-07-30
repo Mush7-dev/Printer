@@ -10,6 +10,7 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.christopherdro.htmltopdf.RNHTMLtoPDFPackage;
+import com.printer.modules.EscPosConverterPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -19,6 +20,7 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
+              add(EscPosConverterPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
