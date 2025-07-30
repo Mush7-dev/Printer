@@ -89,6 +89,21 @@ export const APP_CONFIG = {
   // Default Values
   DEFAULTS: {
     COMPANY_NAME: 'FNET Telecom',
+    SEPARATOR: '================================',
+    ARMENIAN_MONTHS: [
+      'Հունվար',    // January
+      'Փետրվար',    // February
+      'Մարտ',       // March
+      'Ապրիլ',      // April
+      'Մայիս',      // May
+      'Հունիս',     // June
+      'Հուլիս',     // July
+      'Օգոստոս',   // August
+      'Սեպտեմբեր', // September
+      'Հոկտեմբեր',  // October
+      'Նոյեմբեր',   // November
+      'Դեկտեմբեր',  // December
+    ],
   },
 
   // App Metadata

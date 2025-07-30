@@ -9,13 +9,13 @@ import {
 } from 'react-native';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Button } from './Button';
-import { 
-  COLORS, 
-  SPACING, 
-  FONT_SIZES, 
-  PRINTING_CONFIG, 
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  PRINTING_CONFIG,
   DEFAULTS,
-  APP_CONFIG 
+  APP_CONFIG,
 } from '../constants/Constants';
 
 const UserModal = ({
@@ -23,9 +23,7 @@ const UserModal = ({
   setModalVisible,
   userData,
   engineerName,
-  mobileNumber,
   onPrintImage,
-  onPrintTextFast,
   setPreviewImage,
 }) => {
   const dataViewRef = useRef(null);
@@ -87,7 +85,6 @@ const UserModal = ({
               style={[styles.dataBox, styles.printableArea]}
             >
               <Text style={styles.printableText}>{DEFAULTS.COMPANY_NAME}</Text>
-              <Text style={styles.printableText}>{DEFAULTS.SEPARATOR}</Text>
               <Text style={styles.printableText}>Գանձող: {engineerName}</Text>
               {userData && (
                 <View style={{ gap: 20 }}>
@@ -98,37 +95,34 @@ const UserModal = ({
                     հասցե: {userData.address}
                   </Text>
                   <Text style={styles.printableText}>
-                    Վճարման օր: {userData.expectedPaymentDay}
+                    Վճարման օր: {userData.expectedPaymentDay}{' '}
+                    {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
                   </Text>
                   <Text style={styles.printableText}>
                     Գումար: {userData.expectedPaymentAmount}
                   </Text>
                   <Text style={styles.printableText}>
-                    Հեռախոսահամար: {userData.mobilePhoneNumber}
+                    Հեռ.: {userData.mobilePhoneNumber}
                   </Text>
                 </View>
               )}
               <Text style={styles.printableText}> </Text>
               <Text style={styles.printableText}>Ամսաթիվ:</Text>
-              <Text style={styles.printableText}>______________________</Text>
+              <Text style={styles.printableText}>
+                ________________________________
+              </Text>
               <Text style={styles.printableText}> </Text>
               <Text style={styles.printableText}>Գումար:</Text>
-              <Text style={styles.printableText}>______________________</Text>
+              <Text style={styles.printableText}>
+                ________________________________
+              </Text>
               <Text style={styles.printableText}> </Text>
             </ViewShot>
           </ScrollView>
 
           <View style={styles.modalButtonWrapper}>
             <Button
-              text="🚀 FAST TEXT Print"
-              onPress={() => {
-                onPrintTextFast();
-                setModalVisible(false);
-              }}
-            />
-            <View style={{ height: 10 }} />
-            <Button
-              text="📸 Image Print"
+              text="📸 Print"
               onPress={() => {
                 onPrintImage();
                 setModalVisible(false);

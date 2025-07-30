@@ -118,7 +118,7 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: SPACING.XL * 2, // 80px
+    paddingTop: SPACING.XL * 2,
     paddingHorizontal: SPACING.LG,
     backgroundColor: COLORS.BACKGROUND,
     justifyContent: 'center',
