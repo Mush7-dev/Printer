@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -27,7 +27,7 @@ const UserModal = ({
   setPreviewImage,
 }) => {
   const dataViewRef = useRef(null);
-
+  const [uri, setUri] = useState('');
   const capturePreviewImage = async () => {
     try {
       if (!dataViewRef.current) {
@@ -42,7 +42,7 @@ const UserModal = ({
         width: PRINTING_CONFIG.IMAGE.WIDTH,
         height: undefined,
       });
-
+      setUri(imageUri);
       console.log('Image captured as base64');
       setPreviewImage(`data:image/png;base64,${imageUri}`);
     } catch (error) {
@@ -123,8 +123,10 @@ const UserModal = ({
           <View style={styles.modalButtonWrapper}>
             <Button
               text="📸 Print"
+              disabled={uri === ''}
               onPress={() => {
                 onPrintImage();
+                setUri('');
                 setModalVisible(false);
               }}
             />
