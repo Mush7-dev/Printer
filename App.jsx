@@ -23,6 +23,7 @@ function App() {
   const [dataLoading, setDataLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [price, setPrice] = useState('');
 
   const {
     loading,
@@ -110,6 +111,8 @@ function App() {
         onPrintImage={handlePrintImage}
         onPrintTextFast={handlePrintTextFast}
         setPreviewImage={setPreviewImage}
+        price={price}
+        setPrice={setPrice}
       />
     </SafeAreaView>
   );
