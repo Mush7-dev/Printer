@@ -18,12 +18,11 @@ function App() {
   // State management with default values from constants
   const [mobileNumber, setMobileNumber] = useState('');
   const [id, setId] = useState('');
-  const [engineerName, setEngineerName] = useState('');
+  const [engineerName, setEngineerName] = useState('Musho Poghosyan');
   const [userData, setUserData] = useState(null);
   const [dataLoading, setDataLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
-  const [price, setPrice] = useState('');
 
   const {
     loading,
@@ -71,7 +70,8 @@ function App() {
   };
 
   // Print handlers
-  const handlePrintImage = () => printImage(previewImage, setDataLoading);
+  const handlePrintImage = previewImage =>
+    printImage(previewImage, setDataLoading);
   const handlePrintTextFast = () =>
     printTextFast(userData, engineerName, setDataLoading);
 
@@ -98,8 +98,6 @@ function App() {
         setId={setId}
         engineerName={engineerName}
         setEngineerName={setEngineerName}
-        price={price}
-        setPrice={setPrice}
         onFetchData={fetchUserData}
         dataLoading={dataLoading}
       />
@@ -113,7 +111,6 @@ function App() {
         onPrintImage={handlePrintImage}
         onPrintTextFast={handlePrintTextFast}
         setPreviewImage={setPreviewImage}
-        price={price}
       />
     </SafeAreaView>
   );

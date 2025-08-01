@@ -6,8 +6,8 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  TextInput,
 } from 'react-native';
+import { Input } from './Input';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Button } from './Button';
 import {
@@ -26,10 +26,10 @@ const UserModal = ({
   engineerName,
   onPrintImage,
   setPreviewImage,
-  price,
 }) => {
   const dataViewRef = useRef(null);
   const [uri, setUri] = useState('');
+  const [price, setPrice] = useState('');
   const capturePreviewImage = async () => {
     try {
       if (!dataViewRef.current) {
@@ -45,6 +45,7 @@ const UserModal = ({
         height: undefined,
       });
       setUri(imageUri);
+      onPrintImage(imageUri);
       console.log('Image captured as base64');
       setPreviewImage(`data:image/png;base64,${imageUri}`);
     } catch (error) {
@@ -54,14 +55,6 @@ const UserModal = ({
       );
     }
   };
-
-  React.useEffect(() => {
-    if (modalVisible && userData) {
-      setTimeout(() => {
-        capturePreviewImage();
-      }, APP_CONFIG.PERFORMANCE.CAPTURE_TIMEOUT);
-    }
-  }, [modalVisible, userData]);
 
   return (
     <Modal
@@ -121,13 +114,23 @@ const UserModal = ({
             </ViewShot>
           </ScrollView>
 
+          <View style={styles.priceInputWrapper}>
+            <Input
+              value={price}
+              type="numeric"
+              onChange={setPrice}
+              placeholder="Enter price"
+            />
+          </View>
+
           <View style={styles.modalButtonWrapper}>
             <Button
               text="📸 Print"
-              disabled={uri === ''}
-              onPress={() => {
-                onPrintImage();
+              disabled={!price.trim()}
+              onPress={async () => {
+                await capturePreviewImage();
                 setUri('');
+                setPrice('');
                 setModalVisible(false);
               }}
             />
@@ -192,6 +195,9 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.LARGE,
     lineHeight: SPACING.LG,
+  },
+  priceInputWrapper: {
+    marginBottom: SPACING.SM,
   },
   modalButtonWrapper: {
     marginTop: SPACING.SM,

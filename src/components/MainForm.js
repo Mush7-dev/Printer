@@ -11,8 +11,6 @@ const MainForm = ({
   setId,
   engineerName,
   setEngineerName,
-  price,
-  setPrice,
   onFetchData,
   dataLoading,
 }) => {
@@ -40,12 +38,6 @@ const MainForm = ({
           type="default"
           onChange={setEngineerName}
           placeholder="Enter engineer name"
-        />
-        <Input
-          value={price}
-          type="numeric"
-          onChange={setPrice}
-          placeholder="Enter price"
         />
       </View>
       <View style={styles.buttonWrapper}>
