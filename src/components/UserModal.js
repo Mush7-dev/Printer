@@ -27,7 +27,6 @@ const UserModal = ({
   onPrintImage,
   setPreviewImage,
   price,
-  setPrice,
 }) => {
   const dataViewRef = useRef(null);
   const [uri, setUri] = useState('');
@@ -77,7 +76,6 @@ const UserModal = ({
             style={styles.closeButton}
             onPress={() => {
               setModalVisible(false);
-              setPrice('');
             }}
           >
             <Text style={styles.closeButtonText}>✕</Text>
@@ -110,28 +108,18 @@ const UserModal = ({
                   <Text style={styles.printableText}>
                     Հեռ.: {userData.mobilePhoneNumber}
                   </Text>
+                  <Text style={styles.printableText}>
+                    Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
+                  </Text>
+                  <Text style={styles.printableText}>
+                    Վճարված Գումար: {price}
+                  </Text>
+                  <Text style={styles.printableText}></Text>
+                  <Text style={styles.printableText}></Text>
                 </View>
               )}
-              <Text style={styles.printableText}> </Text>
-              <Text style={styles.printableText}>
-                Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
-              </Text>
-              <Text style={styles.printableText}> </Text>
-              <Text style={styles.printableText}>Վճարված Գումար: {price}</Text>
             </ViewShot>
           </ScrollView>
-
-          <View style={styles.priceInputContainer}>
-            <Text style={styles.priceLabel}>Enter Price:</Text>
-            <TextInput
-              style={styles.priceInput}
-              placeholder="Enter price"
-              keyboardType="numeric"
-              placeholderTextColor="#999"
-              value={price}
-              onChangeText={setPrice}
-            />
-          </View>
 
           <View style={styles.modalButtonWrapper}>
             <Button
@@ -141,7 +129,6 @@ const UserModal = ({
                 onPrintImage();
                 setUri('');
                 setModalVisible(false);
-                setPrice('');
               }}
             />
           </View>
@@ -208,24 +195,6 @@ const styles = StyleSheet.create({
   },
   modalButtonWrapper: {
     marginTop: SPACING.SM,
-  },
-  priceInputContainer: {
-    marginBottom: SPACING.MD,
-  },
-  priceLabel: {
-    color: COLORS.PRIMARY,
-    fontSize: FONT_SIZES.MD,
-    fontWeight: 'bold',
-    marginBottom: SPACING.SM,
-  },
-  priceInput: {
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY,
-    borderRadius: SPACING.SM,
-    padding: SPACING.MD,
-    fontSize: FONT_SIZES.MD,
-    color: COLORS.PRIMARY,
-    backgroundColor: COLORS.WHITE,
   },
 });
 

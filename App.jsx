@@ -98,6 +98,8 @@ function App() {
         setId={setId}
         engineerName={engineerName}
         setEngineerName={setEngineerName}
+        price={price}
+        setPrice={setPrice}
         onFetchData={fetchUserData}
         dataLoading={dataLoading}
       />
@@ -112,7 +114,6 @@ function App() {
         onPrintTextFast={handlePrintTextFast}
         setPreviewImage={setPreviewImage}
         price={price}
-        setPrice={setPrice}
       />
     </SafeAreaView>
   );
