@@ -111,6 +111,7 @@ function App() {
         onPrintImage={handlePrintImage}
         onPrintTextFast={handlePrintTextFast}
         setPreviewImage={setPreviewImage}
+        setMobileNumber={setMobileNumber}
       />
     </SafeAreaView>
   );

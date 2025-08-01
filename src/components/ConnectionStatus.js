@@ -19,18 +19,18 @@ const ConnectionStatus = ({
   const [showDetails, setShowDetails] = React.useState(false);
 
   const getStatusText = () => {
-    if (loading) return 'Connecting...';
-    if (connected) return 'Connected';
+    if (loading) return 'Միանում է...';
+    if (connected) return 'Միացված է';
     if (reconnectAttempts > 0)
-      return `Reconnecting... (${reconnectAttempts}/3)`;
-    return 'Disconnected';
+      return `Վերամիանում է... (${reconnectAttempts}/3)`;
+    return 'Անջատված է';
   };
 
   const getLastCheckText = () => {
     if (!lastConnectionCheck) return '';
     const now = Date.now();
     const diffSeconds = Math.floor((now - lastConnectionCheck) / 1000);
-    return `Last check: ${diffSeconds}s ago`;
+    return `Վերջին ստուգում: ${diffSeconds}վ առաջ`;
   };
 
   return (

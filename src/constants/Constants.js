@@ -123,30 +123,30 @@ export const APP_CONFIG = {
   // Error Messages
   ERRORS: {
     BLUETOOTH: {
-      NO_DEVICE: 'Bluetooth device not found',
-      CONNECTION_FAILED: 'Failed to connect to printer',
-      NOT_CONNECTED: 'Printer not ready or not connected',
-      NO_CHARACTERISTIC: 'No writable characteristic found',
+      NO_DEVICE: 'Bluetooth սարքը չի գտնվել',
+      CONNECTION_FAILED: 'Տպիչի հետ միացումը անհաջող է',
+      NOT_CONNECTED: 'Տպիչը պատրաստ չէ կամ միացված չէ',
+      NO_CHARACTERISTIC: 'Գրելի հատկանիշ չի գտնվել',
     },
     API: {
-      NETWORK_ERROR: 'Network error occurred',
-      INVALID_RESPONSE: 'Invalid response from server',
-      MISSING_MOBILE: 'Please enter mobile number',
-      FETCH_FAILED: 'Failed to fetch user data',
+      NETWORK_ERROR: 'Ցանցի սխալ տեղի ունեցավ',
+      INVALID_RESPONSE: 'Սերվերից անվավեր պատասխան',
+      MISSING_MOBILE: 'Խնդրում ենք մուտքագրել բջջային համարը',
+      FETCH_FAILED: 'Օգտատիրոջ տվյալների ստացումը անհաջող է',
     },
     PRINTING: {
-      CONVERSION_FAILED: 'ESC/POS conversion failed',
-      PRINT_FAILED: 'Failed to print',
-      NO_DATA: 'No data to print',
+      CONVERSION_FAILED: 'ESC/POS փոխարկումը անհաջող է',
+      PRINT_FAILED: 'Տպումը անհաջող է',
+      NO_DATA: 'Տպելու տվյալներ չկան',
     },
   },
 
   // Success Messages
   SUCCESS: {
-    BLUETOOTH_CONNECTED: 'Bluetooth connected successfully',
-    PRINT_SUCCESS: 'Print job completed successfully',
-    TEXT_PRINT_SUCCESS: 'Text printed at maximum speed!',
-    IMAGE_PRINT_SUCCESS: 'Image printed successfully!',
+    BLUETOOTH_CONNECTED: 'Bluetooth-ը հաջողությամբ միացվեց',
+    PRINT_SUCCESS: 'Տպումը հաջողությամբ ավարտվեց',
+    TEXT_PRINT_SUCCESS: 'Տեքստը մաքսիմալ արագությամբ տպվեց!',
+    IMAGE_PRINT_SUCCESS: 'Նկարը հաջողությամբ տպվեց!',
   },
 };
 

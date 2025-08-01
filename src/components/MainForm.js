@@ -25,24 +25,24 @@ const MainForm = ({
           value={mobileNumber}
           type="numeric"
           onChange={setMobileNumber}
-          placeholder="Enter mobile number"
+          placeholder="Մուտքագրեք բջջային համարը"
         />
         <Input
           value={id}
           type="numeric"
           onChange={setId}
-          placeholder="Enter user id"
+          placeholder="Մուտքագրեք հաճախորդի ID-ն"
         />
         <Input
           value={engineerName}
           type="default"
           onChange={setEngineerName}
-          placeholder="Enter engineer name"
+          placeholder="Մուտքագրեք ինժեների անունը"
         />
       </View>
       <View style={styles.buttonWrapper}>
         <Button
-          text={'Fetch Data'}
+          text={'Տվյալների ստացում'}
           onPress={onFetchData}
           loading={dataLoading}
         />

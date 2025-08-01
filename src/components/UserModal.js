@@ -26,6 +26,7 @@ const UserModal = ({
   engineerName,
   onPrintImage,
   setPreviewImage,
+  setMobileNumber,
 }) => {
   const dataViewRef = useRef(null);
   const [uri, setUri] = useState('');
@@ -74,7 +75,7 @@ const UserModal = ({
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
 
-          <Text style={styles.modalTitle}>User Data</Text>
+          <Text style={styles.modalTitle}>Օգտատիրոջ տվյալներ</Text>
 
           <ScrollView style={styles.dataScrollView}>
             <ViewShot
@@ -119,18 +120,19 @@ const UserModal = ({
               value={price}
               type="numeric"
               onChange={setPrice}
-              placeholder="Enter price"
+              placeholder="Մուտքագրեք գումարը"
             />
           </View>
 
           <View style={styles.modalButtonWrapper}>
             <Button
-              text="📸 Print"
+              text="🖨️ Տպել"
               disabled={!price.trim()}
               onPress={async () => {
                 await capturePreviewImage();
                 setUri('');
                 setPrice('');
+                setMobileNumber('');
                 setModalVisible(false);
               }}
             />
