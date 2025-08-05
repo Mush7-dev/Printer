@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Input } from './Input';
 import ViewShot, { captureRef } from 'react-native-view-shot';
@@ -16,7 +17,6 @@ import {
   FONT_SIZES,
   PRINTING_CONFIG,
   DEFAULTS,
-  APP_CONFIG,
 } from '../constants/Constants';
 
 const UserModal = ({
@@ -82,10 +82,51 @@ const UserModal = ({
               ref={dataViewRef}
               style={[styles.dataBox, styles.printableArea]}
             >
-              <Text style={styles.printableText}>{DEFAULTS.COMPANY_NAME}</Text>
-              <Text style={styles.printableText}>Գանձող: {engineerName}</Text>
               {userData && (
                 <View style={{ gap: 20 }}>
+                  <Image
+                    source={require('../../assets/fnet.jpg')}
+                    style={styles.dateImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.printableText}>
+                    Գանձող: {engineerName}
+                  </Text>
+                  <Text style={[styles.printableText, { lineHeight: 24 }]}>
+                    Անուն, ազգանուն: {userData.fullName}
+                  </Text>
+                  <Text style={styles.printableText}>
+                    հասցե: {userData.address}
+                  </Text>
+                  <Text style={styles.printableText}>
+                    Վճարման օր: {userData.expectedPaymentDay}{' '}
+                    {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
+                  </Text>
+                  <Text style={styles.printableText}>
+                    Գումար: {userData.expectedPaymentAmount}
+                  </Text>
+                  <Text style={styles.printableText}>
+                    Հեռ.: {userData.mobilePhoneNumber}
+                  </Text>
+                  <Text style={styles.printableText}>
+                    Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
+                  </Text>
+
+                  <Text style={styles.printableText}>
+                    Վճարված Գումար: {price}
+                  </Text>
+
+                  <Text style={styles.printableText}>
+                    ---------------------------------
+                  </Text>
+                  <Image
+                    source={require('../../assets/fnet.jpg')}
+                    style={styles.dateImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.printableText}>
+                    Գանձող: {engineerName}
+                  </Text>
                   <Text style={[styles.printableText, { lineHeight: 24 }]}>
                     Անուն, ազգանուն: {userData.fullName}
                   </Text>
@@ -197,6 +238,21 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.LARGE,
     lineHeight: SPACING.LG,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  },
+  logoImage: {
+    width: 80,
+    height: 60,
+    marginBottom: SPACING.XS,
+  },
+  dateImage: {
+    width: 60,
+    height: 45,
+    alignSelf: 'center',
+    marginVertical: SPACING.XS,
   },
   priceInputWrapper: {
     marginBottom: SPACING.SM,
