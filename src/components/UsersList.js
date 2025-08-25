@@ -140,34 +140,39 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
 
                   return (
                     <View key={userId || index} style={styles.printUserSection}>
+                      <Image
+                        source={require('../../assets/fnet.jpg')}
+                        style={styles.dateImage}
+                        resizeMode="contain"
+                      />
                       <Text style={styles.printableText}>
-                        {index + 1}. {displayName}
+                        Գանձող: Արմեն Հովհաննիսյան
                       </Text>
-                      {displayId && (
-                        <Text style={styles.printableText}>
-                          {' '}
-                          ID: {displayId}
-                        </Text>
-                      )}
-                      {displayPhone && (
-                        <Text style={styles.printableText}>
-                          {' '}
-                          Հեռ: {displayPhone}
-                        </Text>
-                      )}
-                      {displayAddress && (
-                        <Text style={styles.printableText}>
-                          {' '}
-                          Հասցե: {displayAddress}
-                        </Text>
-                      )}
+                      <Text style={[styles.printableText, { lineHeight: 24 }]}>
+                        Անուն, ազգանուն: {displayName}
+                      </Text>
+                      <Text style={styles.printableText}>
+                        հասցե: {displayAddress}
+                      </Text>
                       <Text style={styles.printableText}>
                         Գումար: {price} դրամ
                       </Text>
+                      {displayId && (
+                        <Text style={styles.printableText}>
+                          ID: {displayId}{' '}
+                        </Text>
+                      )}
                       <Text style={styles.printableText}>
-                        Ստորագրություն: _______________
+                        Հեռ.: {displayPhone}
                       </Text>
-                      <Text style={styles.printableText}> </Text>
+                      <Text style={styles.printableText}>
+                        Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
+                      </Text>
+                      <Text style={styles.printableText}>
+                        Վճարված Գումար: {price}
+                      </Text>
+                      <Text style={styles.printableText}></Text>
+                      <Text style={styles.printableText}></Text>
                     </View>
                   );
                 })}
@@ -389,7 +394,14 @@ const styles = StyleSheet.create({
     lineHeight: SPACING.LG,
   },
   printUserSection: {
-    marginBottom: SPACING.XS,
+    marginBottom: SPACING.LG,
+    gap: 20,
+  },
+  dateImage: {
+    width: 60,
+    height: 45,
+    alignSelf: 'center',
+    marginVertical: SPACING.XS,
   },
 });
 
