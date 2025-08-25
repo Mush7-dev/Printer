@@ -6,7 +6,6 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
   Image,
   Modal,
 } from 'react-native';
@@ -82,146 +81,150 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
         <View style={styles.modalContainer}>
           {/* Header with close button */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Գտնվել է {users.length} օգտատեր</Text>
+            <Text style={styles.headerTitle}>
+              Գտնվել է {users.length} օգտատեր
+            </Text>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
           </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Hidden printable content */}
-          <ViewShot ref={printViewRef} style={styles.printableArea}>
-            <View style={styles.printContent}>
-              <Image
-                source={require('../../assets/fnet.jpg')}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.printableText}>{DEFAULTS.COMPANY_NAME}</Text>
-              <Text style={styles.printableText}>
-                Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
-              </Text>
-              <Text style={styles.printableText}>
-                Ընդհանուր օգտատերեր: {users.length}
-              </Text>
-              <Text style={styles.printableText}>
-                ================================
-              </Text>
+          <ScrollView
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Hidden printable content */}
+            <ViewShot ref={printViewRef} style={styles.printableArea}>
+              <View style={styles.printContent}>
+                <Image
+                  source={require('../../assets/fnet.jpg')}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.printableText}>
+                  {DEFAULTS.COMPANY_NAME}
+                </Text>
+                <Text style={styles.printableText}>
+                  Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
+                </Text>
+                <Text style={styles.printableText}>
+                  Ընդհանուր օգտատերեր: {users.length}
+                </Text>
+                <Text style={styles.printableText}>
+                  ================================
+                </Text>
 
-              {users.map((user, index) => {
-                const userId = user.id || user.customerId || user.mNumber;
-                const displayName =
-                  user.name ||
-                  user.customerName ||
-                  user.fullName ||
-                  'Անանուն օգտատեր';
-                const displayId = user.customerId || user.id || '';
-                const displayPhone =
-                  user.mNumber ||
-                  user.phoneNumber ||
-                  user.mobilePhoneNumber ||
-                  '';
-                const displayAddress =
-                  user.address ||
-                  `${user.streetName || ''} ${user.building || ''} ${
-                    user.apartment || ''
-                  }`.trim();
-                const price = userPrices[userId] || '0';
+                {users.map((user, index) => {
+                  console.log(user.fullName);
+                  const userId = user.id || user.customerId || user.mNumber;
+                  const displayName = user.fullName || 'Անանուն օգտատեր';
+                  const displayId = user.customerId || user.id || '';
+                  const displayPhone =
+                    user.mNumber ||
+                    user.phoneNumber ||
+                    user.mobilePhoneNumber ||
+                    '';
+                  const displayAddress =
+                    user.address ||
+                    `${user.streetName || ''} ${user.building || ''} ${
+                      user.apartment || ''
+                    }`.trim();
+                  const price = userPrices[userId] || '0';
 
-                return (
-                  <View key={userId || index} style={styles.printUserSection}>
-                    <Text style={styles.printableText}>
-                      {index + 1}. {displayName}
-                    </Text>
+                  return (
+                    <View key={userId || index} style={styles.printUserSection}>
+                      <Text style={styles.printableText}>
+                        {index + 1}. {displayName}
+                      </Text>
+                      {displayId && (
+                        <Text style={styles.printableText}>
+                          {' '}
+                          ID: {displayId}
+                        </Text>
+                      )}
+                      {displayPhone && (
+                        <Text style={styles.printableText}>
+                          {' '}
+                          Հեռ: {displayPhone}
+                        </Text>
+                      )}
+                      {displayAddress && (
+                        <Text style={styles.printableText}>
+                          {' '}
+                          Հասցե: {displayAddress}
+                        </Text>
+                      )}
+                      <Text style={styles.printableText}>
+                        Գումար: {price} դրամ
+                      </Text>
+                      <Text style={styles.printableText}>
+                        Ստորագրություն: _______________
+                      </Text>
+                      <Text style={styles.printableText}> </Text>
+                    </View>
+                  );
+                })}
+
+                {/* <Text style={styles.printableText}>
+                  ================================
+                </Text> */}
+                {/* <Text style={styles.printableText}>
+                  Ընդհանուր գումար:{' '}
+                  {users.reduce((sum, user) => {
+                    const userId = user.id || user.customerId || user.mNumber;
+                    const price = parseFloat(userPrices[userId]) || 0;
+                    return sum + price;
+                  }, 0)}{' '}
+                  դրամ
+                </Text> */}
+              </View>
+            </ViewShot>
+
+            {/* Visible user list for editing prices */}
+            {users.map((user, index) => {
+              const userId = user.id || user.customerId || user.mNumber;
+              const displayName =
+                user.name || user.fullName || 'Անանուն օգտատեր';
+              const displayId = user.customerId || user.id || '';
+              const displayPhone = user.mNumber || user.phoneNumber || '';
+              const displayAddress =
+                user.address ||
+                `${user.streetName || ''} ${user.building || ''} ${
+                  user.apartment || ''
+                }`.trim();
+
+              return (
+                <View key={userId || index} style={styles.userCard}>
+                  <View style={styles.userInfo}>
+                    <Text style={styles.userName}>{displayName}</Text>
                     {displayId && (
-                      <Text style={styles.printableText}> ID: {displayId}</Text>
+                      <Text style={styles.userDetail}>ID: {displayId}</Text>
                     )}
                     {displayPhone && (
-                      <Text style={styles.printableText}>
-                        {' '}
-                        Հեռ: {displayPhone}
-                      </Text>
+                      <Text style={styles.userDetail}>Հեռ: {displayPhone}</Text>
                     )}
                     {displayAddress && (
-                      <Text style={styles.printableText}>
-                        {' '}
+                      <Text style={styles.userDetail}>
                         Հասցե: {displayAddress}
                       </Text>
                     )}
-                    <Text style={styles.printableText}>
-                      Գումար: {price} դրամ
-                    </Text>
-                    <Text style={styles.printableText}>
-                      Ստորագրություն: _______________
-                    </Text>
-                    <Text style={styles.printableText}> </Text>
                   </View>
-                );
-              })}
 
-              <Text style={styles.printableText}>
-                ================================
-              </Text>
-              <Text style={styles.printableText}>
-                Ընդհանուր գումար:{' '}
-                {users.reduce((sum, user) => {
-                  const userId = user.id || user.customerId || user.mNumber;
-                  const price = parseFloat(userPrices[userId]) || 0;
-                  return sum + price;
-                }, 0)}{' '}
-                դրամ
-              </Text>
-            </View>
-          </ViewShot>
-
-          {/* Visible user list for editing prices */}
-          {users.map((user, index) => {
-            const userId = user.id || user.customerId || user.mNumber;
-            const displayName =
-              user.name || user.customerName || 'Անանուն օգտատեր';
-            const displayId = user.customerId || user.id || '';
-            const displayPhone = user.mNumber || user.phoneNumber || '';
-            const displayAddress =
-              user.address ||
-              `${user.streetName || ''} ${user.building || ''} ${
-                user.apartment || ''
-              }`.trim();
-
-            return (
-              <View key={userId || index} style={styles.userCard}>
-                <View style={styles.userInfo}>
-                  <Text style={styles.userName}>{displayName}</Text>
-                  {displayId && (
-                    <Text style={styles.userDetail}>ID: {displayId}</Text>
-                  )}
-                  {displayPhone && (
-                    <Text style={styles.userDetail}>Հեռ: {displayPhone}</Text>
-                  )}
-                  {displayAddress && (
-                    <Text style={styles.userDetail}>
-                      Հասցե: {displayAddress}
-                    </Text>
-                  )}
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.priceLabel}>Գին (դրամ)</Text>
+                    <TextInput
+                      style={styles.priceInput}
+                      value={userPrices[userId] || ''}
+                      onChangeText={text => handlePriceChange(userId, text)}
+                      keyboardType="numeric"
+                      placeholder="0"
+                      placeholderTextColor={COLORS.WHITE + '50'}
+                    />
+                  </View>
                 </View>
-
-                <View style={styles.priceContainer}>
-                  <Text style={styles.priceLabel}>Գին (դրամ)</Text>
-                  <TextInput
-                    style={styles.priceInput}
-                    value={userPrices[userId] || ''}
-                    onChangeText={text => handlePriceChange(userId, text)}
-                    keyboardType="numeric"
-                    placeholder="0"
-                    placeholderTextColor={COLORS.WHITE + '50'}
-                  />
-                </View>
-              </View>
-            );
-          })}
-        </ScrollView>
+              );
+            })}
+          </ScrollView>
 
           <View style={styles.printButtonContainer}>
             <Button

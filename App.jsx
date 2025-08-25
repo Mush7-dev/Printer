@@ -80,7 +80,7 @@ function App() {
   };
 
   // Handle printing single user image from modal
-  const handlePrintImage = async (imageBase64) => {
+  const handlePrintImage = async imageBase64 => {
     if (!connected) {
       Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
       return;
@@ -128,10 +128,10 @@ function App() {
         lastConnectionCheck={lastConnectionCheck}
       />
 
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.title}>Fnet</Text>
         <Text style={styles.subtitle}>Telecom</Text>
-      </View>
+      </View> */}
 
       <LocationSelector
         onUsersLoaded={handleUsersLoaded}

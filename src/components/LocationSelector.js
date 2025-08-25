@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   ScrollView,
   TextInput,
-  TouchableOpacity,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import {
@@ -34,7 +33,6 @@ const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
   const [loadingStreets, setLoadingStreets] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
 
-  // Fetch districts on component mount
   useEffect(() => {
     fetchDistricts();
   }, []);
@@ -138,8 +136,16 @@ const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
 
     try {
       setLoadingUser(true);
-      let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USERS}?districtName=${encodeURIComponent(selectedDistrict)}&areaName=${encodeURIComponent(selectedArea)}&streetName=${encodeURIComponent(selectedStreet)}&building=${encodeURIComponent(building)}&token=${API_TOKEN}`;
-      
+      let url = `${API_CONFIG.BASE_URL}${
+        API_CONFIG.ENDPOINTS.USERS
+      }?districtName=${encodeURIComponent(
+        selectedDistrict,
+      )}&areaName=${encodeURIComponent(
+        selectedArea,
+      )}&streetName=${encodeURIComponent(
+        selectedStreet,
+      )}&building=${encodeURIComponent(building)}&token=${API_TOKEN}`;
+
       if (apartment) {
         url += `&appartament=${encodeURIComponent(apartment)}`;
       }
@@ -148,7 +154,7 @@ const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
       const response = await fetch(url);
       const data = await response.json();
       console.log('Location users response:', data);
-      
+
       if (response.ok && data) {
         const usersArray = Array.isArray(data) ? data : [data];
         onUsersLoaded(usersArray);
@@ -391,13 +397,16 @@ const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
         </View>
       )}
 
-      <LoadingModal 
-        visible={loadingUser || loading || loadingAreas || loadingStreets} 
+      <LoadingModal
+        visible={loadingUser || loading || loadingAreas || loadingStreets}
         message={
-          loadingUser ? "Բեռնում է օգտատերերի տվյալները..." :
-          loadingAreas ? "Բեռնում է տարածքները..." :
-          loadingStreets ? "Բեռնում է փողոցները..." :
-          "Բեռնում է շրջանները..."
+          loadingUser
+            ? 'Բեռնում է օգտատերերի տվյալները...'
+            : loadingAreas
+            ? 'Բեռնում է տարածքները...'
+            : loadingStreets
+            ? 'Բեռնում է փողոցները...'
+            : 'Բեռնում է շրջանները...'
         }
       />
     </ScrollView>
@@ -408,6 +417,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: SPACING.MD,
+    marginTop: 40,
   },
   searchSection: {
     marginBottom: SPACING.LG,
@@ -466,7 +476,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    height: 50,
+    height: 60,
     color: COLORS.BLACK,
   },
   addressSection: {
@@ -476,6 +486,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.PRIMARY + '30',
+    marginBottom: 30,
   },
   inputRow: {
     flexDirection: 'row',
