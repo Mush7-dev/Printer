@@ -70,8 +70,17 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
         transparent={true}
         onRequestClose={onClose}
       >
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Օգտատերերը չեն գտնվել</Text>
+        <View style={styles.overlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Օգտատերերը չեն գտնվել</Text>
+            </View>
+          </View>
         </View>
       </Modal>
     );

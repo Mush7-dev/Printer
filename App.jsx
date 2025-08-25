@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   Alert,
@@ -33,6 +33,7 @@ function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUsersList, setShowUsersList] = useState(false);
+  const locationSelectorRef = useRef(null);
 
   const {
     loading,
@@ -89,7 +90,7 @@ function App() {
     try {
       setDataLoading(true);
       await printImage(imageBase64, setDataLoading);
-      Alert.alert('Success', SUCCESS_MESSAGES.PRINT_SUCCESS);
+      // Alert.alert('Success', SUCCESS_MESSAGES.PRINT_SUCCESS);
       // setModalVisible(false);
       // setSelectedUser(null);
     } catch (error) {
@@ -104,12 +105,18 @@ function App() {
   const handleModalClose = () => {
     setModalVisible(false);
     setSelectedUser(null);
+    if (locationSelectorRef.current) {
+      locationSelectorRef.current.clearMobileInput();
+    }
   };
 
   // Handle users list close
   const handleUsersListClose = () => {
     setShowUsersList(false);
     setUsers([]);
+    if (locationSelectorRef.current) {
+      locationSelectorRef.current.clearMobileInput();
+    }
   };
 
   return (
@@ -134,6 +141,7 @@ function App() {
       </View> */}
 
       <LocationSelector
+        ref={locationSelectorRef}
         onUsersLoaded={handleUsersLoaded}
         onLocationChange={handleLocationChange}
       />

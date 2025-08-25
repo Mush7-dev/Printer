@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   StyleSheet,
@@ -18,7 +18,7 @@ import {
 import { Button } from './Button';
 import LoadingModal from './LoadingModal';
 
-const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
+const LocationSelector = forwardRef(({ onUsersLoaded, onLocationChange }, ref) => {
   const [districts, setDistricts] = useState([]);
   const [areas, setAreas] = useState([]);
   const [streets, setStreets] = useState([]);
@@ -32,6 +32,12 @@ const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
   const [loadingAreas, setLoadingAreas] = useState(false);
   const [loadingStreets, setLoadingStreets] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    clearMobileInput: () => {
+      setMobileNumber('');
+    },
+  }));
 
   useEffect(() => {
     fetchDistricts();
@@ -411,7 +417,7 @@ const LocationSelector = ({ onUsersLoaded, onLocationChange }) => {
       />
     </ScrollView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
