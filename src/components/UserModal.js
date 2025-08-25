@@ -29,7 +29,6 @@ const UserModal = ({
   setMobileNumber,
 }) => {
   const dataViewRef = useRef(null);
-  const [uri, setUri] = useState('');
   const [price, setPrice] = useState('');
   const capturePreviewImage = async () => {
     try {
@@ -45,7 +44,6 @@ const UserModal = ({
         width: PRINTING_CONFIG.IMAGE.WIDTH,
         height: undefined,
       });
-      setUri(imageUri);
       onPrintImage(imageUri);
       console.log('Image captured as base64');
       setPreviewImage(`data:image/png;base64,${imageUri}`);
@@ -115,40 +113,6 @@ const UserModal = ({
                   <Text style={styles.printableText}>
                     Վճարված Գումար: {price}
                   </Text>
-
-                  <Text style={styles.printableText}>
-                    ---------------------------------
-                  </Text>
-                  <Image
-                    source={require('../../assets/fnet.jpg')}
-                    style={styles.dateImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.printableText}>
-                    Գանձող: {engineerName}
-                  </Text>
-                  <Text style={[styles.printableText, { lineHeight: 24 }]}>
-                    Անուն, ազգանուն: {userData.fullName}
-                  </Text>
-                  <Text style={styles.printableText}>
-                    հասցե: {userData.address}
-                  </Text>
-                  <Text style={styles.printableText}>
-                    Վճարման օր: {userData.expectedPaymentDay}{' '}
-                    {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
-                  </Text>
-                  <Text style={styles.printableText}>
-                    Գումար: {userData.expectedPaymentAmount}
-                  </Text>
-                  <Text style={styles.printableText}>
-                    Հեռ.: {userData.mobilePhoneNumber}
-                  </Text>
-                  <Text style={styles.printableText}>
-                    Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
-                  </Text>
-                  <Text style={styles.printableText}>
-                    Վճարված Գումար: {price}
-                  </Text>
                   <Text style={styles.printableText}></Text>
                   <Text style={styles.printableText}></Text>
                 </View>
@@ -171,10 +135,8 @@ const UserModal = ({
               disabled={!price.trim()}
               onPress={async () => {
                 await capturePreviewImage();
-                setUri('');
                 setPrice('');
                 setMobileNumber('');
-                setModalVisible(false);
               }}
             />
           </View>

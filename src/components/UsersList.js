@@ -64,9 +64,16 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
 
   if (!users || users.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Օգտատերերը չեն գտնվել</Text>
-      </View>
+      <Modal
+        visible={true}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={onClose}
+      >
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Օգտատերերը չեն գտնվել</Text>
+        </View>
+      </Modal>
     );
   }
 
