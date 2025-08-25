@@ -300,7 +300,7 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                   </ViewShot>
 
                   {/* Capture button and preview */}
-                  <View style={styles.captureSection}>
+                  {/* <View style={styles.captureSection}>
                     <TouchableOpacity
                       style={styles.captureButton}
                       onPress={() => handleCaptureUserImage(userId)}
@@ -320,7 +320,7 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                         />
                       </View>
                     )}
-                  </View>
+                  </View> */}
                 </View>
               );
             })}
@@ -373,9 +373,9 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                           Վճարման օր: {user.expectedPaymentDay}{' '}
                           {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
                         </Text>
-                        <Text style={styles.printableText}>
+                        {/* <Text style={styles.printableText}>
                           Գումար: {user.expectedPaymentAmount}
-                        </Text>
+                        </Text> */}
                         <Text style={styles.printableText}>
                           Հեռ.: {displayPhone}
                         </Text>

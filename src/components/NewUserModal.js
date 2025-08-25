@@ -105,9 +105,9 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                   Վճարման օր: {user.expectedPaymentDay}{' '}
                   {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
                 </Text>
-                <Text style={styles.printableText}>
+                {/* <Text style={styles.printableText}>
                   Գումար: {user.expectedPaymentAmount}
-                </Text>
+                </Text> */}
                 <Text style={styles.printableText}>Հեռ.: {displayPhone}</Text>
                 <Text style={styles.printableText}>
                   Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
