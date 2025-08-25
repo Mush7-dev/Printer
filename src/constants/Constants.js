@@ -2,7 +2,9 @@
 export const APP_CONFIG = {
   // Bluetooth Configuration
   BLUETOOTH: {
-    MAC_ADDRESS: '66:22:32:D6:D1:FB',
+    // MAC_ADDRESS: '66:22:32:D6:D1:FB', //
+    MAC_ADDRESS: '86:67:7A:3A:76:5C', // PT-210_765C
+
     CONNECTION_TIMEOUT: 10000, // 10 seconds
     SCAN_DURATION: 5000, // 5 seconds
     CONNECTION_CHECK_INTERVAL: 10000, // Check connection every 10 seconds
@@ -16,6 +18,10 @@ export const APP_CONFIG = {
     TOKEN: '9F7C1B92D8A44F4BB9E6BDE21A7F68A1C3D4EAB8F9F60D3A82B4C78E7F23C9AB',
     ENDPOINTS: {
       USERS: '/users',
+      DISTRICTS: '/districts',
+      AREAS: '/areas',
+      STREETS: '/streets',
+      USER: '/user',
     },
     TIMEOUT: 15000, // 15 seconds
   },
@@ -91,18 +97,18 @@ export const APP_CONFIG = {
     COMPANY_NAME: 'FNET Telecom',
     SEPARATOR: '================================',
     ARMENIAN_MONTHS: [
-      'Հունվար',    // January
-      'Փետրվար',    // February
-      'Մարտ',       // March
-      'Ապրիլ',      // April
-      'Մայիս',      // May
-      'Հունիս',     // June
-      'Հուլիս',     // July
-      'Օգոստոս',   // August
+      'Հունվար', // January
+      'Փետրվար', // February
+      'Մարտ', // March
+      'Ապրիլ', // April
+      'Մայիս', // May
+      'Հունիս', // June
+      'Հուլիս', // July
+      'Օգոստոս', // August
       'Սեպտեմբեր', // September
-      'Հոկտեմբեր',  // October
-      'Նոյեմբեր',   // November
-      'Դեկտեմբեր',  // December
+      'Հոկտեմբեր', // October
+      'Նոյեմբեր', // November
+      'Դեկտեմբեր', // December
     ],
   },
 

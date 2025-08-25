@@ -1,28 +1,37 @@
 import React, { useState } from 'react';
-import { StyleSheet, Alert, SafeAreaView, StatusBar } from 'react-native';
+import {
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+  StatusBar,
+  View,
+  Text,
+} from 'react-native';
 import useBluetoothManager from './src/components/BluetoothManager';
 import usePrintingService from './src/components/PrintingService';
 import ConnectionStatus from './src/components/ConnectionStatus';
-import MainForm from './src/components/MainForm';
-import UserModal from './src/components/UserModal';
+import LocationSelector from './src/components/LocationSelector';
+import UsersList from './src/components/UsersList';
+import NewUserModal from './src/components/NewUserModal';
 import {
   MAC_ADDRESS,
-  API_TOKEN,
-  API_CONFIG,
   ERRORS,
   COLORS,
   SPACING,
+  SUCCESS_MESSAGES,
 } from './src/constants/Constants';
 
 function App() {
-  // State management with default values from constants
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [id, setId] = useState('');
-  const [engineerName, setEngineerName] = useState('Արմեն Հովհաննիսյան');
-  const [userData, setUserData] = useState(null);
+  // State management
+  const [users, setUsers] = useState([]);
   const [dataLoading, setDataLoading] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState({
+    district: '',
+    area: '',
+    street: '',
+  });
   const [modalVisible, setModalVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const {
     loading,
@@ -33,47 +42,84 @@ function App() {
     reconnectAttempts,
     lastConnectionCheck,
   } = useBluetoothManager(MAC_ADDRESS);
-  const { printImage, printTextFast } = usePrintingService(
+
+  const { printMultipleUsers, printImage } = usePrintingService(
     MAC_ADDRESS,
     serviceUUID,
     characteristicUUID,
     connected,
   );
 
-  // API call to fetch user data using constants
-  const fetchUserData = async () => {
-    if (!mobileNumber) {
-      Alert.alert('Error', ERRORS.API.MISSING_MOBILE);
+  // Handle users loaded from LocationSelector
+  const handleUsersLoaded = loadedUsers => {
+    console.log(loadedUsers);
+    if (loadedUsers.length === 1) {
+      // Single user - show modal
+      setSelectedUser(loadedUsers[0]);
+      setModalVisible(true);
+      setUsers([]);
+    } else {
+      // Multiple users - show list
+      setUsers(loadedUsers);
+      setSelectedUser(null);
+      setModalVisible(false);
+    }
+  };
+
+  // Handle location change
+  const handleLocationChange = location => {
+    setCurrentLocation(location);
+    if (!location.street) {
+      // Clear users if street is not selected
+      setUsers([]);
+    }
+  };
+
+  // Handle printing all users with prices
+  const handlePrintUsers = async usersWithPrices => {
+    if (!connected) {
+      Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
       return;
     }
 
     try {
       setDataLoading(true);
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USERS}?mNumber=${mobileNumber}&customerId=${id}&token=${API_TOKEN}`,
-      );
-      const data = await response.json();
-
-      if (response.ok) {
-        setId('');
-        setUserData(data);
-        setModalVisible(true);
-      } else {
-        Alert.alert('Error', ERRORS.API.FETCH_FAILED);
-      }
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Error', ERRORS.API.NETWORK_ERROR);
+      await printMultipleUsers(usersWithPrices, currentLocation);
+      // Alert.alert('Success', SUCCESS_MESSAGES.PRINT_SUCCESS);
+    } catch (error) {
+      console.error('Print error:', error);
+      Alert.alert('Error', ERRORS.PRINTING.PRINT_FAILED);
     } finally {
       setDataLoading(false);
     }
   };
 
-  // Print handlers
-  const handlePrintImage = previewImage =>
-    printImage(previewImage, setDataLoading);
-  const handlePrintTextFast = () =>
-    printTextFast(userData, engineerName, setDataLoading);
+  // Handle printing single user image from modal
+  const handlePrintImage = async (imageBase64) => {
+    if (!connected) {
+      Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
+      return;
+    }
+
+    try {
+      setDataLoading(true);
+      await printImage(imageBase64, setDataLoading);
+      Alert.alert('Success', SUCCESS_MESSAGES.PRINT_SUCCESS);
+      setModalVisible(false);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error('Print error:', error);
+      Alert.alert('Error', ERRORS.PRINTING.PRINT_FAILED);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setModalVisible(false);
+    setSelectedUser(null);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -91,27 +137,30 @@ function App() {
         lastConnectionCheck={lastConnectionCheck}
       />
 
-      <MainForm
-        mobileNumber={mobileNumber}
-        setMobileNumber={setMobileNumber}
-        id={id}
-        setId={setId}
-        engineerName={engineerName}
-        setEngineerName={setEngineerName}
-        onFetchData={fetchUserData}
-        dataLoading={dataLoading}
+      <View style={styles.header}>
+        <Text style={styles.title}>Fnet</Text>
+        <Text style={styles.subtitle}>Telecom</Text>
+      </View>
+
+      <LocationSelector
+        onUsersLoaded={handleUsersLoaded}
+        onLocationChange={handleLocationChange}
       />
 
-      <UserModal
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        userData={userData}
-        engineerName={engineerName}
-        mobileNumber={mobileNumber}
+      {users.length > 0 && (
+        <UsersList
+          users={users}
+          onPrintImage={handlePrintImage}
+          loading={dataLoading}
+        />
+      )}
+
+      <NewUserModal
+        visible={modalVisible}
+        user={selectedUser}
+        onClose={handleModalClose}
         onPrintImage={handlePrintImage}
-        onPrintTextFast={handlePrintTextFast}
-        setPreviewImage={setPreviewImage}
-        setMobileNumber={setMobileNumber}
+        loading={dataLoading}
       />
     </SafeAreaView>
   );
@@ -121,9 +170,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: SPACING.XL * 2,
-    paddingHorizontal: SPACING.LG,
     backgroundColor: COLORS.BACKGROUND,
-    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    paddingVertical: SPACING.MD,
+  },
+  title: {
+    color: COLORS.PRIMARY,
+    fontSize: 35,
+    fontWeight: '900',
+  },
+  subtitle: {
+    color: COLORS.PRIMARY,
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

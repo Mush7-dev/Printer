@@ -111,9 +111,105 @@ export const usePrintingService = (
     }
   };
 
+  const printMultipleUsers = async (usersWithPrices, location) => {
+    if (!connected || !serviceUUID || !characteristicUUID) {
+      Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
+      return;
+    }
+
+    try {
+      console.log('Starting multi-user printing...');
+      
+      // Build text content for all users
+      let textContent = `${DEFAULTS.COMPANY_NAME}\n`;
+      textContent += `${DEFAULTS.SEPARATOR}\n`;
+      
+      // Add location info
+      if (location) {
+        textContent += `Շրջան: ${location.district}\n`;
+        textContent += `Տարածք: ${location.area}\n`;
+        textContent += `Փողոց: ${location.street}\n`;
+        textContent += `${DEFAULTS.SEPARATOR}\n`;
+      }
+      
+      // Add current date
+      const currentDate = new Date();
+      const day = currentDate.getDate();
+      const month = DEFAULTS.ARMENIAN_MONTHS[currentDate.getMonth()];
+      const year = currentDate.getFullYear();
+      textContent += `Ամսաթիվ: ${day} ${month} ${year}\n`;
+      textContent += `${DEFAULTS.SEPARATOR}\n\n`;
+      
+      // Add each user with their price
+      usersWithPrices.forEach((user, index) => {
+        const displayName = user.name || user.customerName || user.fullName || 'Անանուն';
+        const displayId = user.customerId || user.id || '';
+        const displayPhone = user.mNumber || user.phoneNumber || user.mobilePhoneNumber || '';
+        const displayAddress = user.address || 
+          `${user.building || ''} ${user.apartment || ''}`.trim() || '';
+        
+        textContent += `${index + 1}. ${displayName}\n`;
+        
+        if (displayId) {
+          textContent += `   ID: ${displayId}\n`;
+        }
+        if (displayPhone) {
+          textContent += `   Հեռ: ${displayPhone}\n`;
+        }
+        if (displayAddress) {
+          textContent += `   Հասցե: ${displayAddress}\n`;
+        }
+        
+        textContent += `   Գումար: ${user.price} դրամ\n`;
+        textContent += `   Ստորագրություն: _______________\n`;
+        textContent += '\n';
+      });
+      
+      // Add total
+      const totalAmount = usersWithPrices.reduce((sum, user) => {
+        const price = parseFloat(user.price) || 0;
+        return sum + price;
+      }, 0);
+      
+      textContent += `${DEFAULTS.SEPARATOR}\n`;
+      textContent += `Ընդհանուր գումար: ${totalAmount} դրամ\n`;
+      textContent += `Օգտատերերի քանակ: ${usersWithPrices.length}\n`;
+      textContent += `${DEFAULTS.SEPARATOR}\n\n\n`;
+      
+      // Convert to ESC/POS
+      const result = await EscPosConverter.printTextDirectly(textContent);
+      
+      if (!result.success) {
+        throw new Error(ERRORS.PRINTING.CONVERSION_FAILED);
+      }
+      
+      const escposBuffer = Buffer.from(result.escposData, 'base64');
+      console.log(`Multi-user ESC/POS data size: ${escposBuffer.length} bytes`);
+      
+      // Transmit data
+      const chunkSize = PRINTING_CONFIG.ESCPOS.CHUNK_SIZE;
+      
+      for (let i = 0; i < escposBuffer.length; i += chunkSize) {
+        const chunk = escposBuffer.slice(i, i + chunkSize);
+        await BleManager.writeWithoutResponse(
+          macAddress,
+          serviceUUID,
+          characteristicUUID,
+          Array.from(chunk),
+        );
+      }
+      
+      console.log('Multi-user printing completed successfully');
+    } catch (error) {
+      console.error('Multi-user print error:', error);
+      throw error;
+    }
+  };
+
   return {
     printImage,
     printTextFast,
+    printMultipleUsers,
   };
 };
 
