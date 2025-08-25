@@ -103,29 +103,10 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
             {/* Hidden printable content */}
             <ViewShot ref={printViewRef} style={styles.printableArea}>
               <View style={styles.printContent}>
-                <Image
-                  source={require('../../assets/fnet.jpg')}
-                  style={styles.logoImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.printableText}>
-                  {DEFAULTS.COMPANY_NAME}
-                </Text>
-                <Text style={styles.printableText}>
-                  Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
-                </Text>
-                <Text style={styles.printableText}>
-                  Ընդհանուր օգտատերեր: {users.length}
-                </Text>
-                <Text style={styles.printableText}>
-                  ================================
-                </Text>
-
                 {users.map((user, index) => {
                   console.log(user.fullName);
                   const userId = user.id || user.customerId || user.mNumber;
                   const displayName = user.fullName || 'Անանուն օգտատեր';
-                  const displayId = user.customerId || user.id || '';
                   const displayPhone =
                     user.mNumber ||
                     user.phoneNumber ||
@@ -155,13 +136,12 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                         հասցե: {displayAddress}
                       </Text>
                       <Text style={styles.printableText}>
-                        Գումար: {price} դրամ
+                        Վճարման օր: {user.expectedPaymentDay}{' '}
+                        {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
                       </Text>
-                      {displayId && (
-                        <Text style={styles.printableText}>
-                          ID: {displayId}{' '}
-                        </Text>
-                      )}
+                      <Text style={styles.printableText}>
+                        Գումար: {user.expectedPaymentAmount}
+                      </Text>
                       <Text style={styles.printableText}>
                         Հեռ.: {displayPhone}
                       </Text>
@@ -171,7 +151,6 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                       <Text style={styles.printableText}>
                         Վճարված Գումար: {price}
                       </Text>
-                      <Text style={styles.printableText}></Text>
                       <Text style={styles.printableText}></Text>
                     </View>
                   );
@@ -395,7 +374,7 @@ const styles = StyleSheet.create({
   },
   printUserSection: {
     marginBottom: SPACING.LG,
-    gap: 20,
+    gap: 10,
   },
   dateImage: {
     width: 60,

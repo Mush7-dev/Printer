@@ -81,7 +81,6 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
           </View>
-
           <ScrollView
             style={styles.content}
             showsVerticalScrollIndicator={false}
@@ -103,7 +102,13 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                 <Text style={styles.printableText}>
                   հասցե: {displayAddress}
                 </Text>
-                <Text style={styles.printableText}>ID: {displayId}</Text>
+                <Text style={styles.printableText}>
+                  Վճարման օր: {user.expectedPaymentDay}{' '}
+                  {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
+                </Text>
+                <Text style={styles.printableText}>
+                  Գումար: {user.expectedPaymentAmount}
+                </Text>
                 <Text style={styles.printableText}>Հեռ.: {displayPhone}</Text>
                 <Text style={styles.printableText}>
                   Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
@@ -111,31 +116,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                 <Text style={styles.printableText}>
                   Վճարված Գումար: {price || '0'}
                 </Text>
-                <Text style={styles.printableText}>
-                  ---------------------------------
-                </Text>
-                <Image
-                  source={require('../../assets/fnet.jpg')}
-                  style={styles.logoImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.printableText}>
-                  Գանձող: Արմեն Հովհաննիսյան
-                </Text>
-                <Text style={styles.printableText}>
-                  Անուն, ազգանուն: {displayName}
-                </Text>
-                <Text style={styles.printableText}>
-                  հասցե: {displayAddress}
-                </Text>
-                <Text style={styles.printableText}>ID: {displayId}</Text>
-                <Text style={styles.printableText}>Հեռ.: {displayPhone}</Text>
-                <Text style={styles.printableText}>
-                  Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
-                </Text>
-                <Text style={styles.printableText}>
-                  Վճարված Գումար: {price || '0'}
-                </Text>
+                <Text style={styles.printableText} />
               </View>
             </ViewShot>
 
