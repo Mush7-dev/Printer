@@ -32,6 +32,7 @@ function App() {
   });
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showUsersList, setShowUsersList] = useState(false);
 
   const {
     loading,
@@ -58,11 +59,13 @@ function App() {
       setSelectedUser(loadedUsers[0]);
       setModalVisible(true);
       setUsers([]);
+      setShowUsersList(false);
     } else {
-      // Multiple users - show list
+      // Multiple users - show list modal
       setUsers(loadedUsers);
       setSelectedUser(null);
       setModalVisible(false);
+      setShowUsersList(true);
     }
   };
 
@@ -72,25 +75,7 @@ function App() {
     if (!location.street) {
       // Clear users if street is not selected
       setUsers([]);
-    }
-  };
-
-  // Handle printing all users with prices
-  const handlePrintUsers = async usersWithPrices => {
-    if (!connected) {
-      Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
-      return;
-    }
-
-    try {
-      setDataLoading(true);
-      await printMultipleUsers(usersWithPrices, currentLocation);
-      // Alert.alert('Success', SUCCESS_MESSAGES.PRINT_SUCCESS);
-    } catch (error) {
-      console.error('Print error:', error);
-      Alert.alert('Error', ERRORS.PRINTING.PRINT_FAILED);
-    } finally {
-      setDataLoading(false);
+      setShowUsersList(false);
     }
   };
 
@@ -121,6 +106,12 @@ function App() {
     setSelectedUser(null);
   };
 
+  // Handle users list close
+  const handleUsersListClose = () => {
+    setShowUsersList(false);
+    setUsers([]);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -147,11 +138,12 @@ function App() {
         onLocationChange={handleLocationChange}
       />
 
-      {users.length > 0 && (
+      {showUsersList && (
         <UsersList
           users={users}
           onPrintImage={handlePrintImage}
           loading={dataLoading}
+          onClose={handleUsersListClose}
         />
       )}
 

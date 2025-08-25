@@ -10,7 +10,13 @@ import {
   Image,
 } from 'react-native';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import { COLORS, SPACING, FONT_SIZES, PRINTING_CONFIG, DEFAULTS } from '../constants/Constants';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  PRINTING_CONFIG,
+  DEFAULTS,
+} from '../constants/Constants';
 import { Button } from './Button';
 
 const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
@@ -37,7 +43,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
         width: PRINTING_CONFIG.IMAGE.WIDTH,
         height: undefined,
       });
-      
+
       console.log('Image captured as base64');
       onPrintImage(imageUri);
       onClose();
@@ -81,10 +87,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
             showsVerticalScrollIndicator={false}
           >
             {/* Printable Content */}
-            <ViewShot
-              ref={dataViewRef}
-              style={styles.printableArea}
-            >
+            <ViewShot ref={dataViewRef} style={styles.printableArea}>
               <View style={styles.printContent}>
                 <Image
                   source={require('../../assets/fnet.jpg')}
@@ -100,12 +103,8 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                 <Text style={styles.printableText}>
                   հասցե: {displayAddress}
                 </Text>
-                <Text style={styles.printableText}>
-                  ID: {displayId}
-                </Text>
-                <Text style={styles.printableText}>
-                  Հեռ.: {displayPhone}
-                </Text>
+                <Text style={styles.printableText}>ID: {displayId}</Text>
+                <Text style={styles.printableText}>Հեռ.: {displayPhone}</Text>
                 <Text style={styles.printableText}>
                   Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
                 </Text>
@@ -129,12 +128,8 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                 <Text style={styles.printableText}>
                   հասցե: {displayAddress}
                 </Text>
-                <Text style={styles.printableText}>
-                  ID: {displayId}
-                </Text>
-                <Text style={styles.printableText}>
-                  Հեռ.: {displayPhone}
-                </Text>
+                <Text style={styles.printableText}>ID: {displayId}</Text>
+                <Text style={styles.printableText}>Հեռ.: {displayPhone}</Text>
                 <Text style={styles.printableText}>
                   Ամսաթիվ: {new Date().toLocaleDateString('hy-AM')}
                 </Text>
@@ -182,7 +177,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: '90%',
-    maxHeight: '80%',
+    height: '80%',
     backgroundColor: COLORS.BACKGROUND,
     borderRadius: 12,
     borderWidth: 2,
@@ -262,6 +257,7 @@ const styles = StyleSheet.create({
     padding: SPACING.MD,
     borderWidth: 1,
     borderColor: COLORS.PRIMARY + '30',
+    marginBottom: 30,
   },
   sectionTitle: {
     fontSize: FONT_SIZES.MEDIUM,
