@@ -46,7 +46,6 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
 
       console.log('Image captured as base64');
       onPrintImage(imageUri);
-      onClose();
     } catch (error) {
       console.error('Error capturing preview image:', error);
     }

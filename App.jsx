@@ -90,8 +90,8 @@ function App() {
       setDataLoading(true);
       await printImage(imageBase64, setDataLoading);
       Alert.alert('Success', SUCCESS_MESSAGES.PRINT_SUCCESS);
-      setModalVisible(false);
-      setSelectedUser(null);
+      // setModalVisible(false);
+      // setSelectedUser(null);
     } catch (error) {
       console.error('Print error:', error);
       Alert.alert('Error', ERRORS.PRINTING.PRINT_FAILED);
