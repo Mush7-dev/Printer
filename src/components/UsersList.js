@@ -19,7 +19,13 @@ import {
 } from '../constants/Constants';
 import { Button } from './Button';
 
-const UsersList = ({ users, onPrintImage, loading, onClose }) => {
+const UsersList = ({
+  users,
+  onPrintImage,
+  loading,
+  onClose,
+  onStopPrinting,
+}) => {
   const [userPrices, setUserPrices] = useState({});
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
@@ -298,29 +304,6 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                       </Text>
                     </View>
                   </ViewShot>
-
-                  {/* Capture button and preview */}
-                  {/* <View style={styles.captureSection}>
-                    <TouchableOpacity
-                      style={styles.captureButton}
-                      onPress={() => handleCaptureUserImage(userId)}
-                    >
-                      <Text style={styles.captureButtonText}>
-                        Ստեղծել պատկեր
-                      </Text>
-                    </TouchableOpacity>
-
-                    {userImages[userId] && (
-                      <View style={styles.imagePreviewContainer}>
-                        <Text style={styles.previewLabel}>Նախադիտում:</Text>
-                        <Image
-                          source={{ uri: userImages[userId] }}
-                          style={styles.imagePreview}
-                          resizeMode="contain"
-                        />
-                      </View>
-                    )}
-                  </View> */}
                 </View>
               );
             })}
@@ -389,19 +372,6 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
                       </View>
                     );
                   })}
-
-                {/* <Text style={styles.printableText}>
-                  ================================
-                </Text> */}
-                {/* <Text style={styles.printableText}>
-                  Ընդհանուր գումար:{' '}
-                  {users.reduce((sum, user) => {
-                    const userId = user.id || user.customerId || user.mNumber;
-                    const price = parseFloat(userPrices[userId]) || 0;
-                    return sum + price;
-                  }, 0)}{' '}
-                  դրամ
-                </Text> */}
               </View>
             </ViewShot>
 
@@ -409,12 +379,29 @@ const UsersList = ({ users, onPrintImage, loading, onClose }) => {
           </ScrollView>
 
           <View style={[styles.printButtonContainer, { marginBottom: 10 }]}>
-            <Button
-              text={`Տպել ընտրվածները (${selectedUsers.size})`}
-              onPress={handlePrintSelected}
-              loading={loading}
-              disabled={selectedUsers.size === 0}
-            />
+            {loading ? (
+              <View style={styles.printingControls}>
+                <Button
+                  text={`Տպել ընտրվածները (${selectedUsers.size})`}
+                  onPress={handlePrintSelected}
+                  loading={loading}
+                  disabled={selectedUsers.size === 0}
+                />
+                <Button
+                  text="Stop"
+                  onPress={onStopPrinting}
+                  loading={false}
+                  disabled={false}
+                />
+              </View>
+            ) : (
+              <Button
+                text={`Տպել ընտրվածները (${selectedUsers.size})`}
+                onPress={handlePrintSelected}
+                loading={loading}
+                disabled={selectedUsers.size === 0}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -584,6 +571,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.WHITE + '20',
   },
+  printingControls: {
+    flexDirection: 'column',
+    gap: SPACING.SM,
+  },
   printableArea: {
     backgroundColor: COLORS.WHITE,
     padding: SPACING.MD,
@@ -622,7 +613,6 @@ const styles = StyleSheet.create({
   },
   individualPrintContent: {
     backgroundColor: COLORS.WHITE,
-    padding: SPACING.MD,
     gap: SPACING.XS,
   },
   captureSection: {

@@ -45,7 +45,7 @@ function App() {
     lastConnectionCheck,
   } = useBluetoothManager(MAC_ADDRESS);
 
-  const { printMultipleUsers, printImage } = usePrintingService(
+  const { printMultipleUsers, printImage, abortPrint } = usePrintingService(
     MAC_ADDRESS,
     serviceUUID,
     characteristicUUID,
@@ -119,6 +119,14 @@ function App() {
     }
   };
 
+  // Handle stop printing
+  const handleStopPrinting = () => {
+    if (abortPrint) {
+      abortPrint();
+    }
+    setDataLoading(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -152,6 +160,7 @@ function App() {
           onPrintImage={handlePrintImage}
           loading={dataLoading}
           onClose={handleUsersListClose}
+          onStopPrinting={handleStopPrinting}
         />
       )}
 
