@@ -78,7 +78,7 @@ export const APP_CONFIG = {
     FONT_SIZES: {
       SMALL: 10,
       MEDIUM: 14,
-      LARGE: 18,
+      LARGE: 24,
       XL: 24,
       XXL: 35,
     },

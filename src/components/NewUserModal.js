@@ -92,9 +92,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                   style={styles.logoImage}
                   resizeMode="contain"
                 />
-                <Text style={styles.printableText}>
-                  Գանձող: Արմեն Հովհաննիսյան
-                </Text>
+                <Text style={styles.printableText}>Գանձող: Գևորգ Ղազարյան</Text>
                 <Text style={styles.printableText}>
                   Անուն, ազգանուն: {displayName}
                 </Text>
@@ -287,7 +285,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.MD,
   },
   printContent: {
-    gap: SPACING.XS,
+    gap: 8,
   },
   logoImage: {
     width: 60,
@@ -298,6 +296,7 @@ const styles = StyleSheet.create({
   printableText: {
     color: COLORS.BLACK,
     fontSize: FONT_SIZES.LARGE,
+    fontWeight: '600',
     lineHeight: SPACING.LG,
   },
 });

@@ -278,7 +278,7 @@ const UsersList = ({
                         resizeMode="contain"
                       />
                       <Text style={styles.printableText}>
-                        Գանձող: Արմեն Հովհաննիսյան
+                        Գանձող: Գևորգ Ղազարյան
                       </Text>
                       <Text style={[styles.printableText, { lineHeight: 24 }]}>
                         Անուն, ազգանուն: {displayName}
@@ -342,13 +342,13 @@ const UsersList = ({
                           resizeMode="contain"
                         />
                         <Text style={styles.printableText}>
-                          Գանձող: Արմեն Հովհաննիսյան
+                          Գանձող: Գևորգ Ղազարյան
                         </Text>
-                        <Text
+                        {/* <Text
                           style={[styles.printableText, { lineHeight: 24 }]}
                         >
                           Անուն, ազգանուն: {displayName}
-                        </Text>
+                        </Text> */}
                         <Text style={styles.printableText}>
                           հասցե: {displayAddress}
                         </Text>
