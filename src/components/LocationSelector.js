@@ -35,6 +35,7 @@ const LocationSelector = forwardRef(
     const [selectedStreet, setSelectedStreet] = useState('');
     const [building, setBuilding] = useState('');
     const [apartment, setApartment] = useState('');
+    const [pday, setPday] = useState('');
     const [mobileNumber, setMobileNumber] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingAreas, setLoadingAreas] = useState(false);
@@ -154,13 +155,13 @@ const LocationSelector = forwardRef(
           selectedDistrict,
         )}&areaName=${encodeURIComponent(
           selectedArea,
-        )}&streetName=${encodeURIComponent(selectedStreet)}&token=${API_TOKEN}`;
-        if (building) {
-          url += `&building=${encodeURIComponent(building)}`;
-        }
-        if (apartment) {
-          url += `&appartament=${encodeURIComponent(apartment)}`;
-        }
+        )}&streetName=${encodeURIComponent(selectedStreet)}`;
+        
+        // Add optional parameters
+        url += `&building=${building ? encodeURIComponent(building) : ''}`;
+        url += `&pday=${pday ? encodeURIComponent(pday) : ''}`;
+        url += `&appartament=${apartment ? encodeURIComponent(apartment) : ''}`;
+        url += `&token=${API_TOKEN}`;
 
         console.log('Fetching users by location:', url);
         const response = await fetch(url);
@@ -383,18 +384,36 @@ const LocationSelector = forwardRef(
             </View>
           )}
 
-          {/* Building and Apartment Inputs */}
+          {/* Building, Payment Day and Apartment Inputs */}
           {selectedStreet && (
             <View style={styles.addressSection}>
               <View style={styles.inputRow}>
                 <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Շենք *</Text>
+                  <Text style={styles.label}>Շենք</Text>
                   <TextInput
                     style={styles.input}
                     value={building}
                     onChangeText={setBuilding}
                     placeholder="Շենքի համար"
                     placeholderTextColor={COLORS.WHITE + '50'}
+                  />
+                </View>
+                <View style={styles.inputColumn}>
+                  <Text style={styles.label}>Վճարման օր</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={pday}
+                    onChangeText={(text) => {
+                      // Only allow numbers between 1-31
+                      const num = parseInt(text);
+                      if (text === '' || (num >= 1 && num <= 31 && !isNaN(num))) {
+                        setPday(text);
+                      }
+                    }}
+                    placeholder="1-31"
+                    placeholderTextColor={COLORS.WHITE + '50'}
+                    keyboardType="numeric"
+                    maxLength={2}
                   />
                 </View>
                 <View style={styles.inputColumn}>
@@ -412,7 +431,6 @@ const LocationSelector = forwardRef(
                 text="Փնտրել օգտատեր"
                 onPress={fetchUsersByLocation}
                 loading={loadingUser}
-                // disabled={!building}
               />
             </View>
           )}
