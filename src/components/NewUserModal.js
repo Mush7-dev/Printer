@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.PRIMARY + '50',
   },
   headerTitle: {
-    fontSize: FONT_SIZES.LARGE,
+    fontSize: FONT_SIZES.MEDIUM,
     color: COLORS.PRIMARY,
     fontWeight: 'bold',
   },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.LARGE,
+    fontSize: FONT_SIZES.MEDIUM,
     fontWeight: '600',
     lineHeight: SPACING.LG,
   },

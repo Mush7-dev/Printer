@@ -156,7 +156,6 @@ const LocationSelector = forwardRef(
         )}&areaName=${encodeURIComponent(
           selectedArea,
         )}&streetName=${encodeURIComponent(selectedStreet)}`;
-        
         // Add optional parameters
         url += `&building=${building ? encodeURIComponent(building) : ''}`;
         url += `&pday=${pday ? encodeURIComponent(pday) : ''}`;
@@ -384,7 +383,6 @@ const LocationSelector = forwardRef(
             </View>
           )}
 
-          {/* Building, Payment Day and Apartment Inputs */}
           {selectedStreet && (
             <View style={styles.addressSection}>
               <View style={styles.inputRow}>
@@ -403,10 +401,13 @@ const LocationSelector = forwardRef(
                   <TextInput
                     style={styles.input}
                     value={pday}
-                    onChangeText={(text) => {
+                    onChangeText={text => {
                       // Only allow numbers between 1-31
                       const num = parseInt(text);
-                      if (text === '' || (num >= 1 && num <= 31 && !isNaN(num))) {
+                      if (
+                        text === '' ||
+                        (num >= 1 && num <= 31 && !isNaN(num))
+                      ) {
                         setPday(text);
                       }
                     }}

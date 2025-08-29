@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.LARGE,
+    fontSize: FONT_SIZES.MEDIUM,
     lineHeight: SPACING.LG,
   },
   logoContainer: {

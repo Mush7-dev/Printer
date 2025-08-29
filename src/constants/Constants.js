@@ -7,7 +7,7 @@ export const APP_CONFIG = {
 
     CONNECTION_TIMEOUT: 10000, // 10 seconds
     SCAN_DURATION: 5000, // 5 seconds
-    CONNECTION_CHECK_INTERVAL: 10000, // Check connection every 10 seconds
+    CONNECTION_CHECK_INTERVAL: 50000, // Check connection every 10 seconds
     AUTO_RECONNECT: true, // Enable automatic reconnection
     MAX_RECONNECT_ATTEMPTS: 3, // Maximum reconnection attempts
   },
