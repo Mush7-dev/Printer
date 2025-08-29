@@ -2,8 +2,8 @@
 export const APP_CONFIG = {
   // Bluetooth Configuration
   BLUETOOTH: {
-    // MAC_ADDRESS: '66:22:32:D6:D1:FB', //
-    MAC_ADDRESS: '86:67:7A:3A:76:5C', // PT-210_765C
+    MAC_ADDRESS: '10:22:33:3A:E7:3B', //
+    // MAC_ADDRESS: '86:67:7A:3A:76:5C', // PT-210_765C
 
     CONNECTION_TIMEOUT: 10000, // 10 seconds
     SCAN_DURATION: 5000, // 5 seconds

@@ -54,7 +54,6 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
   };
 
   if (!user) return null;
-
   const displayName =
     user.name || user.customerName || user.fullName || 'Անանուն օգտատեր';
   const displayId = user.customerId || user.id || '';
@@ -115,7 +114,9 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                   style={styles.logoImage}
                   resizeMode="contain"
                 />
-                <Text style={styles.printableText}>Գանձող: Գևորգ Ղազարյան</Text>
+                <Text style={styles.printableText}>
+                  Գանձող: Սարգիս Գևորգյան
+                </Text>
                 {/* <Text style={styles.printableText}>
                   Անուն, ազգանուն: {displayName}
                 </Text> */}
