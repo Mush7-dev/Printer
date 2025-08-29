@@ -50,11 +50,11 @@ const useBluetoothManager = macAddress => {
         setReconnectAttempts(prev => prev + 1);
 
         // Retry after a short delay
-        setTimeout(() => {
-          connectPrinter();
-        }, 2000);
+        // setTimeout(() => {
+        //   connectPrinter();
+        // }, 2000);
       } else {
-        Alert.alert('Connection Failed', err.message);
+        // Alert.alert('Connection Failed', err.message);
         setReconnectAttempts(0); // Reset attempts after max reached
       }
     } finally {
