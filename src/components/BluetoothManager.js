@@ -35,7 +35,6 @@ const useBluetoothManager = macAddress => {
       setLastConnectionCheck(Date.now());
       console.log('Bluetooth connected successfully');
     } catch (err) {
-      console.error('Connection error:', err);
       setConnected(false);
 
       // Auto-reconnect logic

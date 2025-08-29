@@ -251,6 +251,12 @@ const UsersList = ({
                           Հասցե: {displayAddress}
                         </Text>
                       )}
+                      {user.expectedPaymentAmount !== null &&
+                        user.expectedPaymentAmount !== undefined && (
+                          <Text style={styles.userDetail}>
+                            Գումար: {user.expectedPaymentAmount}
+                          </Text>
+                        )}
                     </View>
                   </View>
 
@@ -280,9 +286,9 @@ const UsersList = ({
                       <Text style={styles.printableText}>
                         Գանձող: Գևորգ Ղազարյան
                       </Text>
-                      <Text style={[styles.printableText, { lineHeight: 24 }]}>
+                      {/* <Text style={[styles.printableText, { lineHeight: 24 }]}>
                         Անուն, ազգանուն: {displayName}
-                      </Text>
+                      </Text> */}
                       <Text style={styles.printableText}>
                         հասցե: {displayAddress}
                       </Text>
@@ -290,9 +296,9 @@ const UsersList = ({
                         Վճարման օր: {user.expectedPaymentDay}{' '}
                         {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
                       </Text>
-                      <Text style={styles.printableText}>
+                      {/* <Text style={styles.printableText}>
                         Գումար: {user.expectedPaymentAmount}
-                      </Text>
+                      </Text> */}
                       <Text style={styles.printableText}>
                         Հեռ.: {displayPhone}
                       </Text>

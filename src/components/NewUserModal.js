@@ -63,7 +63,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
     `${user.streetName || ''} ${user.building || ''} ${
       user.apartment || ''
     }`.trim();
-
+  console.log(user);
   return (
     <Modal
       visible={visible}
@@ -93,9 +93,9 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                   resizeMode="contain"
                 />
                 <Text style={styles.printableText}>Գանձող: Գևորգ Ղազարյան</Text>
-                <Text style={styles.printableText}>
+                {/* <Text style={styles.printableText}>
                   Անուն, ազգանուն: {displayName}
-                </Text>
+                </Text> */}
                 <Text style={styles.printableText}>
                   հասցե: {displayAddress}
                 </Text>

@@ -90,9 +90,9 @@ const UserModal = ({
                   <Text style={styles.printableText}>
                     Գանձող: {engineerName}
                   </Text>
-                  <Text style={[styles.printableText, { lineHeight: 24 }]}>
+                  {/* <Text style={[styles.printableText, { lineHeight: 24 }]}>
                     Անուն, ազգանուն: {userData.fullName}
-                  </Text>
+                  </Text> */}
                   <Text style={styles.printableText}>
                     հասցե: {userData.address}
                   </Text>
