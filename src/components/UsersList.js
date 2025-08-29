@@ -9,6 +9,7 @@ import {
   Image,
   Modal,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import {
   COLORS,
@@ -25,11 +26,15 @@ const UsersList = ({
   loading,
   onClose,
   onStopPrinting,
+  selectedMonth = new Date().getMonth(),
 }) => {
   const [userPrices, setUserPrices] = useState({});
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const [userImages, setUserImages] = useState({});
+  const [currentSelectedMonth, setCurrentSelectedMonth] = useState(
+    new Date().getMonth(),
+  );
   const printViewRef = useRef(null);
   const userPrintRefs = useRef({});
 
@@ -200,6 +205,28 @@ const UsersList = ({
             </TouchableOpacity>
           </View>
 
+          {/* Month Selector */}
+          <View style={styles.monthSelectorWrapper}>
+            <Text style={styles.monthLabel}>Ամիս</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={currentSelectedMonth}
+                onValueChange={itemValue => setCurrentSelectedMonth(itemValue)}
+                style={styles.picker}
+                dropdownIconColor={COLORS.PRIMARY}
+              >
+                {DEFAULTS.ARMENIAN_MONTHS.map((month, index) => (
+                  <Picker.Item
+                    key={index}
+                    label={month}
+                    value={index}
+                    style={styles.pickerItem}
+                  />
+                ))}
+              </Picker>
+            </View>
+          </View>
+
           <ScrollView
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
@@ -294,7 +321,7 @@ const UsersList = ({
                       </Text>
                       <Text style={styles.printableText}>
                         Վճարման օր: {user.expectedPaymentDay}{' '}
-                        {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
+                        {DEFAULTS.ARMENIAN_MONTHS[currentSelectedMonth]}
                       </Text>
                       {/* <Text style={styles.printableText}>
                         Գումար: {user.expectedPaymentAmount}
@@ -360,7 +387,7 @@ const UsersList = ({
                         </Text>
                         <Text style={styles.printableText}>
                           Վճարման օր: {user.expectedPaymentDay}{' '}
-                          {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
+                          {DEFAULTS.ARMENIAN_MONTHS[currentSelectedMonth]}
                         </Text>
                         {/* <Text style={styles.printableText}>
                           Գումար: {user.expectedPaymentAmount}
@@ -598,7 +625,7 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.MEDIUM,
+    fontSize: 24,
     lineHeight: SPACING.LG,
   },
   printUserSection: {
@@ -655,6 +682,31 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.PRIMARY + '30',
+  },
+  monthSelectorWrapper: {
+    marginBottom: SPACING.SM,
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.SM,
+  },
+  monthLabel: {
+    color: COLORS.PRIMARY,
+    fontSize: FONT_SIZES.MEDIUM,
+    fontWeight: 'bold',
+    marginBottom: SPACING.XS,
+  },
+  pickerContainer: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.SM / 2,
+    borderWidth: 1,
+    borderColor: COLORS.PRIMARY + '50',
+  },
+  picker: {
+    color: COLORS.BLACK,
+    height: 50,
+  },
+  pickerItem: {
+    color: COLORS.BLACK,
+    fontSize: FONT_SIZES.MEDIUM,
   },
 });
 

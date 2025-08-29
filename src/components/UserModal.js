@@ -8,6 +8,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Input } from './Input';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Button } from './Button';
@@ -30,6 +31,7 @@ const UserModal = ({
 }) => {
   const dataViewRef = useRef(null);
   const [price, setPrice] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const capturePreviewImage = async () => {
     try {
       if (!dataViewRef.current) {
@@ -75,6 +77,26 @@ const UserModal = ({
 
           <Text style={styles.modalTitle}>Օգտատիրոջ տվյալներ</Text>
 
+          <View style={styles.monthSelectorWrapper}>
+            <Text style={styles.monthLabel}>Ամիս</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedMonth}
+                onValueChange={itemValue => setSelectedMonth(itemValue)}
+                style={styles.picker}
+                dropdownIconColor={COLORS.PRIMARY}
+              >
+                {DEFAULTS.ARMENIAN_MONTHS.map((month, index) => (
+                  <Picker.Item
+                    key={index}
+                    label={month}
+                    value={index}
+                    style={styles.pickerItem}
+                  />
+                ))}
+              </Picker>
+            </View>
+          </View>
           <ScrollView style={styles.dataScrollView}>
             <ViewShot
               ref={dataViewRef}
@@ -98,7 +120,7 @@ const UserModal = ({
                   </Text>
                   <Text style={styles.printableText}>
                     Վճարման օր: {userData.expectedPaymentDay}{' '}
-                    {DEFAULTS.ARMENIAN_MONTHS[new Date().getMonth()]}
+                    {DEFAULTS.ARMENIAN_MONTHS[selectedMonth]}
                   </Text>
                   <Text style={styles.printableText}>
                     Գումար: {userData.expectedPaymentAmount}
@@ -198,7 +220,7 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.MEDIUM,
+    fontSize: FONT_SIZES.MEDIUM_Label2,
     lineHeight: SPACING.LG,
   },
   logoContainer: {
@@ -221,6 +243,30 @@ const styles = StyleSheet.create({
   },
   modalButtonWrapper: {
     marginTop: SPACING.SM,
+  },
+  monthSelectorWrapper: {
+    marginBottom: SPACING.SM,
+    paddingVertical: SPACING.SM,
+  },
+  monthLabel: {
+    color: COLORS.PRIMARY,
+    fontSize: FONT_SIZES.MEDIUM,
+    fontWeight: 'bold',
+    marginBottom: SPACING.XS,
+  },
+  pickerContainer: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: SPACING.SM / 2,
+    borderWidth: 1,
+    borderColor: COLORS.PRIMARY + '50',
+  },
+  picker: {
+    color: COLORS.BLACK,
+    height: 50,
+  },
+  pickerItem: {
+    color: COLORS.BLACK,
+    fontSize: FONT_SIZES.MEDIUM,
   },
 });
 
