@@ -311,7 +311,7 @@ const UsersList = ({
                         resizeMode="contain"
                       />
                       <Text style={styles.printableText}>
-                        Գանձող: Սարգիս Գևորգյան
+                        Գանձող: Հովհաննես Հովհաննիսյան
                       </Text>
                       {/* <Text style={[styles.printableText, { lineHeight: 24 }]}>
                         Անուն, ազգանուն: {displayName}
@@ -375,7 +375,7 @@ const UsersList = ({
                           resizeMode="contain"
                         />
                         <Text style={styles.printableText}>
-                          Գանձող: Սարգիս Գևորգյան
+                          Գանձող: Հովհաննես Հովհաննիսյան
                         </Text>
                         {/* <Text
                           style={[styles.printableText, { lineHeight: 24 }]}

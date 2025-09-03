@@ -115,7 +115,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                   resizeMode="contain"
                 />
                 <Text style={styles.printableText}>
-                  Գանձող: Սարգիս Գևորգյան
+                  Գանձող: Հովհաննես Հովհաննիսյան
                 </Text>
                 {/* <Text style={styles.printableText}>
                   Անուն, ազգանուն: {displayName}
