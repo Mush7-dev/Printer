@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  Linking,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ViewShot, { captureRef } from 'react-native-view-shot';
@@ -236,7 +237,8 @@ const UsersList = ({
               const displayName =
                 user.name || user.fullName || 'Անանուն օգտատեր';
               const displayId = user.customerId || user.id || '';
-              const displayPhone = user.mNumber || user.phoneNumber || '';
+              const displayPhone =
+                user.mobilePhoneNumber || user.phoneNumber || '';
               const displayAddress =
                 user.address ||
                 `${user.streetName || ''} ${user.building || ''} ${
@@ -269,9 +271,17 @@ const UsersList = ({
                         <Text style={styles.userDetail}>ID: {displayId}</Text>
                       )}
                       {displayPhone && (
-                        <Text style={styles.userDetail}>
-                          Հեռ: {displayPhone}
-                        </Text>
+                        <TouchableOpacity
+                          onPress={() => {
+                            if (displayPhone) {
+                              Linking.openURL(`tel:${displayPhone}`);
+                            }
+                          }}
+                        >
+                          <Text style={styles.userDetail}>
+                            Հեռ: {displayPhone}
+                          </Text>
+                        </TouchableOpacity>
                       )}
                       {displayAddress && (
                         <Text style={styles.userDetail}>
