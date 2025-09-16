@@ -115,7 +115,7 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
                   resizeMode="contain"
                 />
                 <Text style={styles.printableText}>
-                  Գանձող: Հովհաննես Հովհաննիսյան
+                  Գանձող: Արմեն Հովհաննիսյան
                 </Text>
                 {/* <Text style={styles.printableText}>
                   Անուն, ազգանուն: {displayName}
@@ -309,18 +309,18 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.MD,
   },
   printContent: {
-    gap: 8,
+    gap: 15,
   },
   logoImage: {
-    width: 60,
-    height: 45,
+    width: 85,
+    height: 60,
     alignSelf: 'center',
     marginVertical: SPACING.XS,
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.MEDIUM_Label,
-    lineHeight: SPACING.LG,
+    fontSize: 30,
+    // lineHeight: SPACING.LG,
   },
   monthSection: {
     backgroundColor: COLORS.PRIMARY + '10',

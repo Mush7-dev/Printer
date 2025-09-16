@@ -3,7 +3,10 @@ export const APP_CONFIG = {
   // Bluetooth Configuration
   BLUETOOTH: {
     // MAC_ADDRESS: '10:22:33:3A:E7:3B', //
-    MAC_ADDRESS: '66:22:32:D6:D1:FB', // PT-210_765C
+    // MAC_ADDRESS: '66:22:32:D6:D1:FB', // PT-210_765C
+    // MAC_ADDRESS: '10:22:33:8F:47:OD', // Գևորգ Ղազարյան PT-210_470D
+    // MAC_ADDRESS: '10:22:33:31:38:B0', //  Հովհաննես Հովհաննիսյան PT-210_470D
+    MAC_ADDRESS: '10:22:33:50:59:09', //  Արմեն Հովհաննիսյան PT-210_UB
 
     CONNECTION_TIMEOUT: 10000, // 10 seconds
     SCAN_DURATION: 5000, // 5 seconds

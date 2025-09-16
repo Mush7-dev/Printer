@@ -220,8 +220,7 @@ const styles = StyleSheet.create({
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: FONT_SIZES.MEDIUM_Label2,
-    lineHeight: SPACING.LG,
+    fontSize: 30,
   },
   logoContainer: {
     alignItems: 'center',
@@ -233,8 +232,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.XS,
   },
   dateImage: {
-    width: 60,
-    height: 45,
+    width: 85,
+    height: 60,
     alignSelf: 'center',
     marginVertical: SPACING.XS,
   },

@@ -321,7 +321,7 @@ const UsersList = ({
                         resizeMode="contain"
                       />
                       <Text style={styles.printableText}>
-                        Գանձող: Հովհաննես Հովհաննիսյան
+                        Գանձող: Արմեն Հովհաննիսյան
                       </Text>
                       {/* <Text style={[styles.printableText, { lineHeight: 24 }]}>
                         Անուն, ազգանուն: {displayName}
@@ -359,7 +359,7 @@ const UsersList = ({
                     return selectedUsers.has(userId);
                   })
                   .map((user, index) => {
-                    console.log(user.fullName);
+                    console.log(user);
                     const userId = user.id || user.customerId || user.mNumber;
                     const displayName = user.fullName || 'Անանուն օգտատեր';
                     const displayPhone =
@@ -385,7 +385,7 @@ const UsersList = ({
                           resizeMode="contain"
                         />
                         <Text style={styles.printableText}>
-                          Գանձող: Հովհաննես Հովհաննիսյան
+                          Գանձող: Արմեն Հովհաննիսյան
                         </Text>
                         {/* <Text
                           style={[styles.printableText, { lineHeight: 24 }]}
@@ -625,26 +625,25 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.MD,
   },
   printContent: {
-    gap: SPACING.XS,
+    gap: 15,
   },
   logoImage: {
-    width: 60,
-    height: 45,
+    width: 85,
+    height: 60,
     alignSelf: 'center',
     marginVertical: SPACING.XS,
   },
   printableText: {
     color: COLORS.BLACK,
-    fontSize: 24,
-    lineHeight: SPACING.LG,
+    fontSize: 30,
   },
   printUserSection: {
     marginBottom: SPACING.LG,
     gap: 10,
   },
   dateImage: {
-    width: 60,
-    height: 45,
+    width: 85,
+    height: 60,
     alignSelf: 'center',
     marginVertical: SPACING.XS,
   },
