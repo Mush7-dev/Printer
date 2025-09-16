@@ -21,7 +21,6 @@ export const usePrintingService = (
     try {
       setDataLoading(true);
 
-      // Create abort controller for this print job
       printAbortControllerRef.current = new AbortController();
 
       const testImageBase64 = previewImage;
@@ -36,15 +35,15 @@ export const usePrintingService = (
 
       const escposBuffer = Buffer.from(result.escposData, 'base64');
 
-      const chunkSize = PRINTING_CONFIG.ESCPOS.CHUNK_SIZE_SAFE;
+      const chunkSize = PRINTING_CONFIG.ESCPOS.CHUNK_SIZE_IMAGE;
+
       for (let i = 0; i < escposBuffer.length; i += chunkSize) {
-        // Check if printing was aborted
         if (printAbortControllerRef.current?.signal.aborted) {
-          console.log('Print job aborted');
           throw new Error('Print job was cancelled');
         }
 
         const chunk = escposBuffer.slice(i, i + chunkSize);
+        console.log('24234234234');
         await BleManager.writeWithoutResponse(
           macAddress,
           serviceUUID,
@@ -53,7 +52,6 @@ export const usePrintingService = (
         );
       }
     } catch (error) {
-      console.error('Print error:', error);
       if (error.message !== 'Print job was cancelled') {
         Alert.alert('Error', `Failed to print: ${error.message}`);
       }
@@ -72,8 +70,6 @@ export const usePrintingService = (
     try {
       setDataLoading(true);
       const startTime = Date.now();
-      console.log('Starting ULTRA-FAST text printing...');
-      // Build text content quickly using constants
       let textContent = `${DEFAULTS.COMPANY_NAME}\n`;
       textContent += `${DEFAULTS.SEPARATOR}\n`;
       if (engineerName) {
@@ -99,9 +95,6 @@ export const usePrintingService = (
       }
 
       const escposBuffer = Buffer.from(result.escposData, 'base64');
-      console.log(`Text ESC/POS data size: ${escposBuffer.length} bytes`);
-
-      // Ultra-fast transmission
       const transmissionStart = Date.now();
       const chunkSize = PRINTING_CONFIG.ESCPOS.CHUNK_SIZE;
 
@@ -114,13 +107,7 @@ export const usePrintingService = (
           Array.from(chunk),
         );
       }
-
-      console.log(
-        `Text BLE transmission took: ${Date.now() - transmissionStart}ms`,
-      );
-      console.log(`Total FAST text print time: ${Date.now() - startTime}ms`);
     } catch (error) {
-      console.error('Fast text print error:', error);
       Alert.alert('Error', `Failed to print text: ${error.message}`);
     } finally {
       setDataLoading(false);
@@ -134,8 +121,6 @@ export const usePrintingService = (
     }
 
     try {
-      console.log('Starting multi-user printing...');
-
       // Build text content for all users
       let textContent = `${DEFAULTS.COMPANY_NAME}\n`;
       textContent += `${DEFAULTS.SEPARATOR}\n`;
@@ -204,7 +189,6 @@ export const usePrintingService = (
       }
 
       const escposBuffer = Buffer.from(result.escposData, 'base64');
-      console.log(`Multi-user ESC/POS data size: ${escposBuffer.length} bytes`);
 
       // Transmit data
       const chunkSize = PRINTING_CONFIG.ESCPOS.CHUNK_SIZE;
@@ -218,10 +202,7 @@ export const usePrintingService = (
           Array.from(chunk),
         );
       }
-
-      console.log('Multi-user printing completed successfully');
     } catch (error) {
-      console.error('Multi-user print error:', error);
       throw error;
     }
   };
@@ -229,7 +210,6 @@ export const usePrintingService = (
   const abortPrint = () => {
     if (printAbortControllerRef.current) {
       printAbortControllerRef.current.abort();
-      console.log('Print job abort requested');
     }
   };
 

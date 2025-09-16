@@ -33,7 +33,6 @@ const useBluetoothManager = macAddress => {
       setConnected(true);
       setReconnectAttempts(0); // Reset reconnection attempts on successful connection
       setLastConnectionCheck(Date.now());
-      console.log('Bluetooth connected successfully');
     } catch (err) {
       setConnected(false);
 
@@ -42,11 +41,6 @@ const useBluetoothManager = macAddress => {
         BLUETOOTH_CONFIG.AUTO_RECONNECT &&
         reconnectAttempts < BLUETOOTH_CONFIG.MAX_RECONNECT_ATTEMPTS
       ) {
-        console.log(
-          `Reconnection attempt ${reconnectAttempts + 1}/${
-            BLUETOOTH_CONFIG.MAX_RECONNECT_ATTEMPTS
-          }`,
-        );
         setReconnectAttempts(prev => prev + 1);
 
         // Retry after a short delay
@@ -74,7 +68,6 @@ const useBluetoothManager = macAddress => {
       );
 
       if (!isConnected && connected) {
-        console.log('Connection lost, attempting to reconnect...');
         setConnected(false);
 
         // Attempt to reconnect if auto-reconnect is enabled
@@ -85,7 +78,6 @@ const useBluetoothManager = macAddress => {
 
       setLastConnectionCheck(Date.now());
     } catch (error) {
-      console.log('Connection check failed:', error);
       if (connected) {
         setConnected(false);
         if (BLUETOOTH_CONFIG.AUTO_RECONNECT) {
@@ -103,7 +95,6 @@ const useBluetoothManager = macAddress => {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       ])
         .then(result => {
-          console.log('Permissions result:', result);
           if (
             result['android.permission.BLUETOOTH_CONNECT'] ===
               PermissionsAndroid.RESULTS.GRANTED &&
@@ -113,8 +104,6 @@ const useBluetoothManager = macAddress => {
               PermissionsAndroid.RESULTS.GRANTED
           ) {
             connectPrinter();
-          } else {
-            console.log('One or more permissions denied');
           }
         })
         .catch(error => {

@@ -34,7 +34,6 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
   const captureAndPrint = async () => {
     try {
       if (!dataViewRef.current) {
-        console.log('Data view ref not ready');
         return;
       }
 
@@ -46,7 +45,6 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
         height: undefined,
       });
 
-      console.log('Image captured as base64');
       onPrintImage(imageUri);
     } catch (error) {
       console.error('Error capturing preview image:', error);
@@ -64,7 +62,6 @@ const NewUserModal = ({ visible, user, onClose, onPrintImage, loading }) => {
     `${user.streetName || ''} ${user.building || ''} ${
       user.apartment || ''
     }`.trim();
-  console.log(user);
   return (
     <Modal
       visible={visible}

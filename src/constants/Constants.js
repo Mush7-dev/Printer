@@ -34,13 +34,15 @@ export const APP_CONFIG = {
     // Image settings
     IMAGE: {
       WIDTH: 384, // Full thermal printer width
-      QUALITY: 0.1, // Low quality for speed
+      QUALITY: 0.3, // Balanced quality for speed and clarity
       FORMAT: 'png',
+      COMPRESSION: 'speed', // Prioritize speed over file size
     },
 
     // ESC/POS settings
     ESCPOS: {
-      CHUNK_SIZE: 200, // BLE transmission chunk size
+      CHUNK_SIZE: 200, // BLE transmission chunk size for text
+      CHUNK_SIZE_IMAGE: 150, // Optimized chunk size for image data
       CHUNK_SIZE_SAFE: 20, // Safe fallback chunk size
       TRANSMISSION_DELAY: 0, // No delay for maximum speed
       SAFE_TRANSMISSION_DELAY: 10, // Safe fallback delay

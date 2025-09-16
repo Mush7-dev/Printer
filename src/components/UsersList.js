@@ -97,7 +97,6 @@ const UsersList = ({
     try {
       const userRef = userPrintRefs.current[userId];
       if (!userRef) {
-        console.log('User ref not ready for:', userId);
         return;
       }
 
@@ -113,17 +112,12 @@ const UsersList = ({
         ...prev,
         [userId]: imageUri,
       }));
-
-      console.log('User image captured for:', userId);
-    } catch (error) {
-      console.error('Error capturing user image:', error);
-    }
+    } catch (error) {}
   };
 
   const handlePrintSelected = async () => {
     try {
       if (!printViewRef.current) {
-        console.log('Print view ref not ready');
         return;
       }
 
@@ -140,11 +134,8 @@ const UsersList = ({
         height: undefined,
       });
 
-      console.log('Selected users image captured as base64');
       onPrintImage(imageUri);
-    } catch (error) {
-      console.error('Error capturing users image:', error);
-    }
+    } catch (error) {}
   };
 
   if (!users || users.length === 0) {
@@ -359,7 +350,6 @@ const UsersList = ({
                     return selectedUsers.has(userId);
                   })
                   .map((user, index) => {
-                    console.log(user);
                     const userId = user.id || user.customerId || user.mNumber;
                     const displayName = user.fullName || 'Անանուն օգտատեր';
                     const displayPhone =

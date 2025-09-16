@@ -54,7 +54,6 @@ function App() {
 
   // Handle users loaded from LocationSelector
   const handleUsersLoaded = loadedUsers => {
-    console.log(loadedUsers);
     if (loadedUsers.length === 1) {
       // Single user - show modal
       setSelectedUser(loadedUsers[0]);

@@ -109,7 +109,6 @@ const LocationSelector = forwardRef(
           )}&areaName=${encodeURIComponent(areaName)}&token=${API_TOKEN}`,
         );
         const data = await response.json();
-        console.log(data);
         if (response.ok && data) {
           setStreets(Array.isArray(data) ? data : [data]);
         }
@@ -128,11 +127,9 @@ const LocationSelector = forwardRef(
       try {
         setLoadingUser(true);
         const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USER}?mNumber=${mobileNumber}&token=${API_TOKEN}`;
-        console.log('Fetching user:', url);
 
         const response = await fetch(url);
         const data = await response.json();
-        console.log('User response:', data);
 
         if (response.ok && data) {
           const usersArray = Array.isArray(data) ? data : [data];
@@ -162,10 +159,8 @@ const LocationSelector = forwardRef(
         url += `&appartament=${apartment ? encodeURIComponent(apartment) : ''}`;
         url += `&token=${API_TOKEN}`;
 
-        console.log('Fetching users by location:', url);
         const response = await fetch(url);
         const data = await response.json();
-        console.log('Location users response:', data);
 
         if (response.ok && data) {
           const usersArray = Array.isArray(data) ? data : [data];
@@ -214,7 +209,6 @@ const LocationSelector = forwardRef(
       if (!selectedDistrict || !selectedArea || !streetName) {
         return;
       }
-      console.log(streetName);
       try {
         setLoading(true);
         const url = `${API_CONFIG.BASE_URL}${
@@ -224,13 +218,10 @@ const LocationSelector = forwardRef(
         )}&areaName=${encodeURIComponent(
           selectedArea,
         )}&streetName=${encodeURIComponent(streetName)}&token=${API_TOKEN}`;
-        console.log(url);
         const response = await fetch(url);
         const data = await response.json();
-        console.log(data);
         if (response.ok && data) {
           const usersArray = Array.isArray(data) ? data : [data];
-          console.log(usersArray);
           onUsersLoaded(usersArray);
         }
       } catch (error) {

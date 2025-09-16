@@ -35,7 +35,6 @@ const UserModal = ({
   const capturePreviewImage = async () => {
     try {
       if (!dataViewRef.current) {
-        console.log('Data view ref not ready');
         return;
       }
 
@@ -47,14 +46,8 @@ const UserModal = ({
         height: undefined,
       });
       onPrintImage(imageUri);
-      console.log('Image captured as base64');
       setPreviewImage(`data:image/png;base64,${imageUri}`);
-    } catch (error) {
-      console.error(
-        'Error capturing preview image or converting to ESC/POS:',
-        error,
-      );
-    }
+    } catch (error) {}
   };
 
   return (

@@ -11,7 +11,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.post('/convert-to-escpos', async (req, res) => {
   try {
     const { base64Image, width = 384 } = req.body;
-    console.log('dlkfj');
     if (!base64Image) {
       return res.status(400).json({ error: 'base64Image is required' });
     }
@@ -124,18 +123,12 @@ app.get('/convert-aa-png', async (req, res) => {
     const { data, info } = processedImage;
     const { width: imgWidth, height: imgHeight } = info;
 
-    console.log(`Processing image: ${imgWidth}x${imgHeight}`);
-
     const escposCommands = [];
 
     // Initialize printer
     escposCommands.push(0x1b, 0x40); // ESC @
 
     const bytesPerLine = Math.ceil(imgWidth / 8);
-
-    console.log(
-      `Processing: ${imgWidth}x${imgHeight}, Bytes per line: ${bytesPerLine}`,
-    );
 
     // Use GS v 0 raster graphics command for full width printing
     // GS v 0 m xL xH yL yH d1...dk
@@ -191,6 +184,4 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'ESC/POS conversion server is running' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => {});
