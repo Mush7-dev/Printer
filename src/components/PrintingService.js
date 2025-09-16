@@ -61,59 +61,6 @@ export const usePrintingService = (
     }
   };
 
-  const printTextFast = async (userData, engineerName, setDataLoading) => {
-    if (!connected || !serviceUUID || !characteristicUUID) {
-      Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
-      return;
-    }
-
-    try {
-      setDataLoading(true);
-      const startTime = Date.now();
-      let textContent = `${DEFAULTS.COMPANY_NAME}\n`;
-      textContent += `${DEFAULTS.SEPARATOR}\n`;
-      if (engineerName) {
-        textContent += `Գանձող: ${engineerName}\n`;
-      }
-      if (userData) {
-        textContent += `Անուն: ${userData.fullName}\n`;
-        textContent += `հասցե: ${userData.address}\n`;
-        const currentDate = new Date();
-        const currentMonthArmenian =
-          DEFAULTS.ARMENIAN_MONTHS[currentDate.getMonth()];
-        textContent += `Վճարման օր: ${userData.expectedPaymentDay} ${currentMonthArmenian}\n`;
-        textContent += `Գումար: ${userData.expectedPaymentAmount}\n`;
-        textContent += `Հեռախոս: ${userData.mobilePhoneNumber}\n`;
-      }
-      textContent += `\nԱմսաթիվ: ____________________\n`;
-      textContent += `Գումար: ____________________\n`;
-      const conversionStart = Date.now();
-      const result = await EscPosConverter.printTextDirectly(textContent);
-
-      if (!result.success) {
-        throw new Error(ERRORS.PRINTING.CONVERSION_FAILED);
-      }
-
-      const escposBuffer = Buffer.from(result.escposData, 'base64');
-      const transmissionStart = Date.now();
-      const chunkSize = PRINTING_CONFIG.ESCPOS.CHUNK_SIZE;
-
-      for (let i = 0; i < escposBuffer.length; i += chunkSize) {
-        const chunk = escposBuffer.slice(i, i + chunkSize);
-        await BleManager.writeWithoutResponse(
-          macAddress,
-          serviceUUID,
-          characteristicUUID,
-          Array.from(chunk),
-        );
-      }
-    } catch (error) {
-      Alert.alert('Error', `Failed to print text: ${error.message}`);
-    } finally {
-      setDataLoading(false);
-    }
-  };
-
   const printMultipleUsers = async (usersWithPrices, location) => {
     if (!connected || !serviceUUID || !characteristicUUID) {
       Alert.alert('Error', ERRORS.BLUETOOTH.NOT_CONNECTED);
@@ -215,7 +162,6 @@ export const usePrintingService = (
 
   return {
     printImage,
-    printTextFast,
     printMultipleUsers,
     abortPrint,
   };
